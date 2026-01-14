@@ -14,6 +14,8 @@ app = Flask(__name__)
 # Configuration
 FIREBASE_URL = "https://hapagfarm-default-rtdb.asia-southeast1.firebasedatabase.app"
 FIREBASE_NODE = "/sensor_logs.json"
+GOOGLE_SHEET_ID = "1rtSbAKs5XvVjVoWYVFIbIIrYW_JF3wcqNFXDnZX1XYg"
+GOOGLE_SHEET_URL = f"https://docs.google.com/spreadsheets/d/{GOOGLE_SHEET_ID}/export?format=csv"
 
 SOIL_THRESHOLDS = {
     "N": {"critical_low": 20, "optimal_min": 80, "optimal_max": 120, "critical_high": 200},
@@ -159,6 +161,28 @@ def get_expert_recommendation(n, p, k, ph, hum):
     return "Rice"
 
 def fetch_latest_data():
+    # Try Google Sheets first (more reliable)
+    try:
+        df = pd.read_csv(GOOGLE_SHEET_URL)
+        if not df.empty:
+            # Get the last row
+            last_row = df.iloc[-1]
+            
+            mapped_values = {
+                'N': float(last_row.get('N', last_row.get('Nitrogen', 0))),
+                'P': float(last_row.get('P', last_row.get('Phosphorus', 0))),
+                'K': float(last_row.get('K', last_row.get('Potassium', 0))),
+                'ph': float(last_row.get('pH', last_row.get('ph', 0))),
+                'humidity': float(last_row.get('Humidity', last_row.get('humidity', 0))),
+                'soil_moisture': float(last_row.get('Soil Moisture', last_row.get('soil_moisture', 0))),
+                'temperature': float(last_row.get('Temperature', last_row.get('temperature', 0))),
+                'timestamp': str(last_row.get('Timestamp', last_row.get('timestamp', 'Unknown')))
+            }
+            return mapped_values, mapped_values['timestamp']
+    except Exception as e:
+        print(f"Google Sheets error: {e}")
+    
+    # Fallback to Firebase
     try:
         url = f"{FIREBASE_URL}{FIREBASE_NODE}?orderBy=\"$key\"&limitToLast=1"
         response = requests.get(url, timeout=5)
@@ -169,7 +193,6 @@ def fetch_latest_data():
                 values = data[key]
                 timestamp = values.get('timestamp', values.get('date', 'Unknown'))
                 
-                # Map sensor field names to app field names
                 mapped_values = {
                     'N': values.get('N', values.get('nitrogen', 0)),
                     'P': values.get('P', values.get('phosphorus', 0)),
