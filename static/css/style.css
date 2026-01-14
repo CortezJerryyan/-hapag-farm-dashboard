@@ -675,6 +675,35 @@ body::before {
     position: relative;
     height: 400px;
     width: 100%;
+    overflow-x: auto;
+}
+
+/* Mobile Responsive - Analytics */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 300px;
+        margin: 0 -0.75rem;
+        padding: 0 0.75rem;
+    }
+    
+    /* Make summary stats stack on mobile */
+    .row .col-md-2 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Adjust card body padding on mobile */
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Make trend indicators stack */
+    .row .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
 }
 
 /* ========================================= */
