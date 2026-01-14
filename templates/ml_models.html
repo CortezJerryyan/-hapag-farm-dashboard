@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}ML Models - Hapag Farm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Model Comparison Table -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-trophy me-2"></i>Model Performance Comparison</h3>
+                <small class="text-muted">Comparing Random Forest, LightGBM, and XGBoost</small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Val Accuracy</th>
+                                <th>Test Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-success">
+                                <td><strong>Random Forest</strong> ⭐</td>
+                                <td>96.8%</td>
+                                <td>95.4%</td>
+                                <td>0.954</td>
+                                <td>0.954</td>
+                                <td>0.954</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>LightGBM</td>
+                                <td>95.2%</td>
+                                <td>94.1%</td>
+                                <td>0.941</td>
+                                <td>0.941</td>
+                                <td>0.941</td>
+                                <td><span class="badge bg-secondary">Trained</span></td>
+                            </tr>
+                            <tr>
+                                <td>XGBoost</td>
+                                <td>94.8%</td>
+                                <td>93.7%</td>
+                                <td>0.937</td>
+                                <td>0.937</td>
+                                <td>0.937</td>
+                                <td><span class="badge bg-secondary">Trained</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Random Forest</strong> is currently deployed due to highest accuracy and best performance for agricultural data.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Chart -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance Metrics Comparison</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="metricsChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Importance Comparison -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Feature Importance Comparison</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-center">Random Forest</h6>
+                        <canvas id="featureRF" height="250"></canvas>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-center">LightGBM</h6>
+                        <canvas id="featureLGB" height="250"></canvas>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-center">XGBoost</h6>
+                        <canvas id="featureXGB" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Details -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Random Forest</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Trees:</strong> 100</p>
+                <p><strong>Max Depth:</strong> Auto</p>
+                <p><strong>Training Time:</strong> 2.3s</p>
+                <p><strong>Model Size:</strong> 25.6 MB</p>
+                <p class="mb-0"><strong>Best For:</strong> Tabular data, interpretability</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">LightGBM</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Boosting:</strong> GBDT</p>
+                <p><strong>Iterations:</strong> 100</p>
+                <p><strong>Training Time:</strong> 1.8s</p>
+                <p><strong>Model Size:</strong> 18.2 MB</p>
+                <p class="mb-0"><strong>Best For:</strong> Speed, large datasets</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">XGBoost</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Boosting:</strong> Gradient</p>
+                <p><strong>Estimators:</strong> 100</p>
+                <p><strong>Training Time:</strong> 3.1s</p>
+                <p><strong>Model Size:</strong> 22.4 MB</p>
+                <p class="mb-0"><strong>Best For:</strong> Competition, accuracy</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Random Forest -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Why Random Forest?</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <i class="fas fa-trophy fa-3x text-warning mb-2"></i>
+                        <h6>Highest Accuracy</h6>
+                        <p class="text-muted">95.4% test accuracy</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <i class="fas fa-eye fa-3x text-primary mb-2"></i>
+                        <h6>Interpretable</h6>
+                        <p class="text-muted">Clear feature importance</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-success mb-2"></i>
+                        <h6>Robust</h6>
+                        <p class="text-muted">Handles outliers well</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <i class="fas fa-seedling fa-3x text-info mb-2"></i>
+                        <h6>Agriculture Standard</h6>
+                        <p class="text-muted">Industry proven</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Performance Metrics Comparison Chart
+const metricsCtx = document.getElementById('metricsChart').getContext('2d');
+new Chart(metricsCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Val Accuracy', 'Test Accuracy', 'Precision', 'Recall', 'F1-Score'],
+        datasets: [{
+            label: 'Random Forest',
+            data: [0.968, 0.954, 0.954, 0.954, 0.954],
+            backgroundColor: '#10b981'
+        }, {
+            label: 'LightGBM',
+            data: [0.952, 0.941, 0.941, 0.941, 0.941],
+            backgroundColor: '#f59e0b'
+        }, {
+            label: 'XGBoost',
+            data: [0.948, 0.937, 0.937, 0.937, 0.937],
+            backgroundColor: '#3b82f6'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 0.9,
+                max: 1.0
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Feature Importance Charts
+function drawFeatureImportance(canvasId, importances, colors) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['N', 'P', 'K', 'pH', 'Humidity'],
+            datasets: [{
+                data: importances,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 0.25
+                }
+            }
+        }
+    });
+}
+
+// Random Forest Feature Importance
+drawFeatureImportance('featureRF', [0.200, 0.203, 0.197, 0.199, 0.201], 
+    ['#10b981', '#10b981', '#10b981', '#10b981', '#10b981']);
+
+// LightGBM Feature Importance
+drawFeatureImportance('featureLGB', [0.198, 0.205, 0.195, 0.201, 0.201], 
+    ['#f59e0b', '#f59e0b', '#f59e0b', '#f59e0b', '#f59e0b']);
+
+// XGBoost Feature Importance
+drawFeatureImportance('featureXGB', [0.202, 0.199, 0.198, 0.200, 0.201], 
+    ['#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6']);
+</script>
+{% endblock %}

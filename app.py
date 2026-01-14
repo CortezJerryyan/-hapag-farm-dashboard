@@ -713,6 +713,11 @@ def settings():
                          firebase_url=FIREBASE_URL,
                          firebase_node=FIREBASE_NODE)
 
+@app.route('/ml_models')
+def ml_models():
+    """ML Model Comparison Page"""
+    return render_template('ml_models.html')
+
 @app.route('/api/refresh')
 def api_refresh():
     data, timestamp = fetch_latest_data()
