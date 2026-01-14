@@ -3,21 +3,34 @@
 :root {
     --primary-green: #2e7d32;
     --success-green: #43a047;
-    --warning-yellow: #F59E0B;
-    --danger-red: #EF4444;
+    --light-green: #66bb6a;
+    --warning-orange: #ff9800;
+    --sunset-orange: #ff6f00;
     --text-dark: #1F2937;
     --text-light: #6B7280;
-    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-bg: rgba(255, 255, 255, 0.75);
     --glass-border: rgba(255, 255, 255, 0.3);
 }
 
-/* Global Styles with Background */
+/* Global Styles with Farm Background */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    background-attachment: fixed;
+    background: url('/static/images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
     min-height: 100vh;
     line-height: 1.6;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(46, 125, 50, 0.3), rgba(255, 152, 0, 0.2));
+    z-index: -1;
 }
 
 /* Custom Bootstrap Overrides with Glass Effect */
@@ -33,8 +46,14 @@ body {
     background: var(--glass-bg) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
     border-bottom: 1px solid var(--glass-border);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--primary-green) !important;
 }
 
 /* Mobile Bottom Navigation - Hidden by Default */
@@ -49,7 +68,7 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border-radius: 24px;
     padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
     border: 1px solid var(--glass-border);
     border-left: 4px solid var(--primary-green);
     transition: all 0.3s ease;
@@ -58,8 +77,12 @@ body {
 
 .metric-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.25);
 }
+
+.metric-card.metric-optimal { border-left-color: var(--success-green); }
+.metric-card.metric-warning { border-left-color: var(--warning-orange); }
+.metric-card.metric-critical { border-left-color: #EF4444; }
 
 .metric-card.metric-optimal { border-left-color: var(--success-green); }
 .metric-card.metric-warning { border-left-color: var(--warning-yellow); }
@@ -204,9 +227,21 @@ body {
     color: white;
 }
 
+.btn-success {
+    background: linear-gradient(135deg, var(--success-green), var(--light-green));
+    border: none;
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning-orange), var(--sunset-orange));
+    border: none;
+    color: white;
+}
+
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
 }
 
 /* Cards with Glass Effect */
@@ -216,13 +251,13 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
     transition: all 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.25);
 }
 
 .card-header {
@@ -230,6 +265,11 @@ body {
     border-bottom: 1px solid var(--glass-border);
     border-radius: 24px 24px 0 0 !important;
     backdrop-filter: blur(10px);
+}
+
+.card-header h3, .card-header h5 {
+    color: var(--primary-green);
+    font-weight: 700;
 }
 
 /* Navigation */
