@@ -8,6 +8,7 @@ from datetime import datetime
 from sklearn.linear_model import LinearRegression
 import plotly.graph_objects as go
 import plotly.utils
+from forecast_model import generate_forecasts
 
 app = Flask(__name__)
 
@@ -838,6 +839,29 @@ def api_analytics_data():
         'has_data': data is not None,
         'data_count': len(data) if data else 0
     })
+
+@app.route('/api/forecast')
+def api_forecast():
+    """API endpoint for sensor forecasting"""
+    data = fetch_firebase_data()
+    
+    if not data:
+        return jsonify({'error': 'No data available'})
+    
+    # Extract historical readings for each sensor
+    sensor_history = {'N': [], 'P': [], 'K': [], 'Soil_pH': [], 'Humidity': [], 'Temperature': []}
+    
+    for key, values in data.items():
+        if isinstance(values, dict):
+            sensor_history['N'].append(float(values.get('N', 0)))
+            sensor_history['P'].append(float(values.get('P', 0)))
+            sensor_history['K'].append(float(values.get('K', 0)))
+            sensor_history['Soil_pH'].append(float(values.get('ph', 0)))
+            sensor_history['Humidity'].append(float(values.get('humidity', 0)))
+            sensor_history['Temperature'].append(float(values.get('temperature', 0)))
+    
+    forecasts = generate_forecasts(sensor_history)
+    return jsonify(forecasts)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
