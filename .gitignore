@@ -85,7 +85,7 @@ logs/
 .env.production.local
 
 # ML Models (optional - customize as needed)
-*.pkl
+# *.pkl - Commented out to include hapag_crop_model.pkl and label_encoder.pkl
 *.joblib
 *.h5
 *.model
