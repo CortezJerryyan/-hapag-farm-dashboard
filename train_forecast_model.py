@@ -4,6 +4,11 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 import joblib
+import sys
+import io
+
+# Fix encoding for Windows
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 print("=" * 60)
 print("HAPAG FARM - FORECAST MODEL TRAINING")
