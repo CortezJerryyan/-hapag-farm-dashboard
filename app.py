@@ -168,10 +168,40 @@ def fetch_latest_data():
                 key = list(data.keys())[0]
                 values = data[key]
                 timestamp = values.get('timestamp', values.get('date', 'Unknown'))
-                return values, timestamp
+                
+                # Check if data is fresh (within last 1 minute)
+                is_connected = True
+                try:
+                    # Try multiple timestamp formats
+                    data_time = None
+                    if isinstance(timestamp, str):
+                        # Try ISO format first
+                        try:
+                            data_time = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                        except:
+                            # Try common formats
+                            for fmt in ['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', '%Y/%m/%d %H:%M:%S']:
+                                try:
+                                    data_time = datetime.strptime(timestamp, fmt)
+                                    break
+                                except:
+                                    continue
+                    
+                    if data_time:
+                        now = datetime.now()
+                        time_diff = (now - data_time).total_seconds()
+                        
+                        # If data is older than 1 minute, sensor is offline
+                        if time_diff > 60:  # 1 minute
+                            is_connected = False
+                except Exception as e:
+                    print(f"Timestamp parse error: {e}")
+                    pass
+                
+                return values, timestamp, is_connected
     except:
         pass
-    return None, None
+    return None, None, False
 
 def fetch_firebase_data():
     try:
@@ -523,10 +553,7 @@ def calculate_trend_analysis(data):
 @app.route('/')
 def index():
     # Fetch real-time data
-    data, timestamp = fetch_latest_data()
-    
-    # Check if sensor is connected
-    sensor_connected = data is not None
+    data, timestamp, is_connected = fetch_latest_data()
     
     # Default values (only used when no data)
     sensor_data = {
@@ -544,7 +571,7 @@ def index():
                 'ph': float(data.get('ph', 0)),
                 'humidity': float(data.get('humidity', 0)),
                 'timestamp': timestamp or 'Unknown',
-                'connected': True
+                'connected': is_connected  # True if fresh data, False if stale
             })
         except:
             sensor_data['connected'] = False
