@@ -87,6 +87,24 @@
                     <div class="metric-status mt-2"></div>
                 </div>
             </div>
+            <div class="col-md-6 col-lg-2 mb-3">
+                <div class="metric-card" data-param="soil_moisture" data-value="{{ sensor_data.soil_moisture }}">
+                    <div class="metric-label">Soil Moisture</div>
+                    <div class="metric-value">{{ sensor_data.soil_moisture }} <span class="metric-unit">%</span></div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar bg-info" style="width: {{ sensor_data.soil_moisture }}%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-2 mb-3">
+                <div class="metric-card" data-param="temperature" data-value="{{ sensor_data.temperature }}">
+                    <div class="metric-label">Temperature</div>
+                    <div class="metric-value">{{ sensor_data.temperature }} <span class="metric-unit">°C</span></div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar bg-warning" style="width: {{ (sensor_data.temperature / 50 * 100)|round }}%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         {% else %}
         <div class="card bg-danger text-white text-center py-5">

@@ -175,7 +175,9 @@ def fetch_latest_data():
                     'P': values.get('P', values.get('phosphorus', 0)),
                     'K': values.get('K', values.get('potassium', 0)),
                     'ph': values.get('ph', values.get('pH', 0)),
-                    'humidity': values.get('humidity', values.get('soil_moisture', 0)),
+                    'humidity': values.get('humidity', 0),
+                    'soil_moisture': values.get('soil_moisture', 0),
+                    'temperature': values.get('temperature', 0),
                     'timestamp': timestamp
                 }
                 return mapped_values, timestamp
@@ -538,6 +540,7 @@ def index():
     # Default values (only used when no data)
     sensor_data = {
         'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
+        'soil_moisture': 0, 'temperature': 0,
         'timestamp': 'No data',
         'connected': False
     }
@@ -550,6 +553,8 @@ def index():
                 'K': float(data.get('K', 0)),
                 'ph': float(data.get('ph', 0)),
                 'humidity': float(data.get('humidity', 0)),
+                'soil_moisture': float(data.get('soil_moisture', 0)),
+                'temperature': float(data.get('temperature', 0)),
                 'timestamp': timestamp or 'Unknown',
                 'connected': True
             })
