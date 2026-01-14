@@ -168,6 +168,20 @@ def fetch_latest_data():
                 key = list(data.keys())[0]
                 values = data[key]
                 timestamp = values.get('timestamp', values.get('date', 'Unknown'))
+                
+                # Check if data is fresh (within last 5 minutes)
+                try:
+                    from dateutil import parser
+                    data_time = parser.parse(timestamp)
+                    now = datetime.now(data_time.tzinfo) if data_time.tzinfo else datetime.now()
+                    time_diff = (now - data_time).total_seconds()
+                    
+                    # If data is older than 5 minutes, consider sensor offline
+                    if time_diff > 300:  # 5 minutes = 300 seconds
+                        return None, None
+                except:
+                    pass  # If timestamp parsing fails, return the data anyway
+                
                 return values, timestamp
     except:
         pass
