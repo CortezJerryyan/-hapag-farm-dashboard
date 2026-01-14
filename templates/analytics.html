@@ -159,6 +159,43 @@
     </div>
 
     {% if has_data %}
+    <!-- Real-Time Gauge Charts -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Current Sensor Levels</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeN" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Nitrogen</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeP" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Phosphorus</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeK" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Potassium</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugePH" width="120" height="120"></canvas>
+                        <h6 class="mt-2">pH Level</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeHumidity" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Humidity</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeHealth" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Soil Health</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="col-12">
         <div class="card">
             <div class="card-header">
@@ -193,6 +230,77 @@ Plotly.newPlot('trendChart', chartData.data, chartData.layout, {
     modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
     displaylogo: false
 });
+
+// Draw Gauge Charts
+function drawGauge(canvasId, value, maxValue, label) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 45;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Determine color based on value
+    let color = '#4CAF50'; // Green
+    if (label === 'pH' && (value < 5.5 || value > 7.5)) color = '#FF5722'; // Red
+    if (label === 'Humidity' && value < 40) color = '#FFC107'; // Yellow
+    if (label === 'N' && value < 40) color = '#FF5722';
+    if (label === 'P' && value < 15) color = '#FF5722';
+    if (label === 'K' && value < 60) color = '#FF5722';
+    if (label === 'Health' && value < 60) color = '#FFC107';
+    if (label === 'Health' && value < 40) color = '#FF5722';
+    
+    // Background circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fill();
+    
+    // Value arc
+    const percentage = value / maxValue;
+    const endAngle = -Math.PI / 2 + (2 * Math.PI * percentage);
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle);
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    
+    // Inner circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius - 15, 0, 2 * Math.PI);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    
+    // Value text
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 18px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(value.toFixed(1), centerX, centerY);
+}
+
+// Fetch current sensor data and draw gauges
+fetch('/api/refresh')
+    .then(response => response.json())
+    .then(data => {
+        if (data.connected) {
+            drawGauge('gaugeN', data.N || 40, 200, 'N');
+            drawGauge('gaugeP', data.P || 20, 100, 'P');
+            drawGauge('gaugeK', data.K || 60, 200, 'K');
+            drawGauge('gaugePH', data.ph || 6.5, 14, 'pH');
+            drawGauge('gaugeHumidity', data.humidity || 55, 100, 'Humidity');
+            
+            // Calculate health score
+            const health = ((data.N/200 + data.P/100 + data.K/200) / 3) * 100;
+            drawGauge('gaugeHealth', health, 100, 'Health');
+        }
+    })
+    .catch(error => console.error('Error fetching sensor data:', error));
 
 function exportData() {
     // Create CSV from chart data
