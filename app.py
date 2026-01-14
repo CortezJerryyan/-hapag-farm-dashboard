@@ -813,7 +813,14 @@ def settings():
 @app.route('/ml_models')
 def ml_models():
     """ML Model Comparison Page"""
-    return render_template('ml_models.html')
+    try:
+        from ml_comparison import generate_ml_comparison
+        metrics_df, charts = generate_ml_comparison()
+        return render_template('ml_models.html', 
+                             metrics=metrics_df.to_dict('records'),
+                             charts=charts)
+    except Exception as e:
+        return render_template('ml_models.html', error=str(e))
 
 @app.route('/api/refresh')
 def api_refresh():

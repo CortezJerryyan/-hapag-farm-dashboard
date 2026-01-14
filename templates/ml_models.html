@@ -4,145 +4,131 @@
 
 {% block content %}
 <div class="row">
+    {% if error %}
+    <div class="col-12 mb-4">
+        <div class="alert alert-warning">Error generating comparison: {{ error }}</div>
+    </div>
+    {% endif %}
+
     <!-- Model Comparison Table -->
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0"><i class="fas fa-trophy me-2"></i>Model Performance Comparison</h3>
-                <small class="text-muted">Comparing Random Forest, LightGBM, and XGBoost</small>
+                <small class="text-muted">Comprehensive evaluation of Random Forest, Gradient Boosting, and Decision Tree models trained on 36,520 crop samples</small>
             </div>
             <div class="card-body">
+                {% if metrics %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Model</th>
-                                <th>Val Accuracy</th>
-                                <th>Test Accuracy</th>
+                                <th>Val Acc</th>
+                                <th>Test Acc</th>
                                 <th>Precision</th>
                                 <th>Recall</th>
                                 <th>F1-Score</th>
-                                <th>Status</th>
+                                <th>Top-K Acc</th>
+                                <th>CV Mean</th>
+                                <th>CV Std</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="table-success">
-                                <td><strong>Random Forest</strong> ⭐</td>
-                                <td>96.8%</td>
-                                <td>95.4%</td>
-                                <td>0.954</td>
-                                <td>0.954</td>
-                                <td>0.954</td>
-                                <td><span class="badge bg-success">Active</span></td>
+                            {% for m in metrics %}
+                            <tr class="{{ 'table-success' if loop.first else '' }}">
+                                <td><strong>{{ m.Model }}</strong> {{ '⭐' if loop.first else '' }}</td>
+                                <td>{{ (m['Val Acc'] * 100)|round(2) }}%</td>
+                                <td>{{ (m['Test Acc'] * 100)|round(2) }}%</td>
+                                <td>{{ m.Precision|round(4) }}</td>
+                                <td>{{ m.Recall|round(4) }}</td>
+                                <td>{{ m['F1-Score']|round(4) }}</td>
+                                <td>{{ (m['Top-K Acc'] * 100)|round(2) }}%</td>
+                                <td>{{ m['CV Mean']|round(4) }}</td>
+                                <td>{{ m['CV Std']|round(4) }}</td>
                             </tr>
-                            <tr>
-                                <td>LightGBM</td>
-                                <td>95.2%</td>
-                                <td>94.1%</td>
-                                <td>0.941</td>
-                                <td>0.941</td>
-                                <td>0.941</td>
-                                <td><span class="badge bg-secondary">Trained</span></td>
-                            </tr>
-                            <tr>
-                                <td>XGBoost</td>
-                                <td>94.8%</td>
-                                <td>93.7%</td>
-                                <td>0.937</td>
-                                <td>0.937</td>
-                                <td>0.937</td>
-                                <td><span class="badge bg-secondary">Trained</span></td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                {% endif %}
                 <div class="alert alert-info mt-3">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Random Forest</strong> is currently deployed due to highest accuracy and best performance for agricultural data.
+                    <strong>Random Forest</strong> is deployed for crop recommendations using binary NPK logic combined with ML predictions.
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Performance Metrics Chart -->
+    <!-- Performance Charts -->
+    {% if charts %}
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance Metrics Comparison</h5>
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance Metrics & Cross-Validation</h5>
+                <small class="text-muted">Comparison of validation accuracy, test accuracy, precision, recall, and F1-score across models with 5-fold cross-validation</small>
             </div>
-            <div class="card-body">
-                <canvas id="metricsChart" height="80"></canvas>
+            <div class="card-body text-center">
+                <img src="data:image/png;base64,{{ charts.performance }}" class="img-fluid" alt="Performance Comparison">
             </div>
         </div>
     </div>
 
-    <!-- Feature Importance Comparison -->
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Feature Importance Comparison</h5>
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>ROC-AUC Curve Comparison</h5>
+                <small class="text-muted">Receiver Operating Characteristic curves showing model discrimination ability across all crop classes (micro-average)</small>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <h6 class="text-center">Random Forest</h6>
-                        <canvas id="featureRF" height="250"></canvas>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <h6 class="text-center">LightGBM</h6>
-                        <canvas id="featureLGB" height="250"></canvas>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <h6 class="text-center">XGBoost</h6>
-                        <canvas id="featureXGB" height="250"></canvas>
-                    </div>
-                </div>
+            <div class="card-body text-center">
+                <img src="data:image/png;base64,{{ charts.roc }}" class="img-fluid" alt="ROC-AUC Curves">
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Model Details -->
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Random Forest</h6>
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-tree me-2"></i>Random Forest</h6>
             </div>
             <div class="card-body">
-                <p><strong>Trees:</strong> 100</p>
-                <p><strong>Max Depth:</strong> Auto</p>
-                <p><strong>Training Time:</strong> 2.3s</p>
-                <p><strong>Model Size:</strong> 25.6 MB</p>
-                <p class="mb-0"><strong>Best For:</strong> Tabular data, interpretability</p>
+                <p><strong>Estimators:</strong> 100 trees</p>
+                <p><strong>Features:</strong> N, P, K, pH, Humidity</p>
+                <p><strong>Classes:</strong> 22 Filipino crops</p>
+                <p><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
+                <p class="mb-0"><strong>Best For:</strong> Balanced accuracy, interpretability, and robustness to outliers</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">LightGBM</h6>
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Gradient Boosting</h6>
             </div>
             <div class="card-body">
-                <p><strong>Boosting:</strong> GBDT</p>
-                <p><strong>Iterations:</strong> 100</p>
-                <p><strong>Training Time:</strong> 1.8s</p>
-                <p><strong>Model Size:</strong> 18.2 MB</p>
-                <p class="mb-0"><strong>Best For:</strong> Speed, large datasets</p>
+                <p><strong>Estimators:</strong> 100 boosting stages</p>
+                <p><strong>Learning Rate:</strong> 0.1</p>
+                <p><strong>Max Depth:</strong> 3</p>
+                <p><strong>Status:</strong> <span class="badge bg-secondary">Trained</span></p>
+                <p class="mb-0"><strong>Best For:</strong> Sequential error correction and handling complex patterns</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">XGBoost</h6>
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-sitemap me-2"></i>Decision Tree</h6>
             </div>
             <div class="card-body">
-                <p><strong>Boosting:</strong> Gradient</p>
-                <p><strong>Estimators:</strong> 100</p>
-                <p><strong>Training Time:</strong> 3.1s</p>
-                <p><strong>Model Size:</strong> 22.4 MB</p>
-                <p class="mb-0"><strong>Best For:</strong> Competition, accuracy</p>
+                <p><strong>Criterion:</strong> Gini impurity</p>
+                <p><strong>Splitter:</strong> Best split</p>
+                <p><strong>Max Depth:</strong> Unlimited</p>
+                <p><strong>Status:</strong> <span class="badge bg-secondary">Trained</span></p>
+                <p class="mb-0"><strong>Best For:</strong> Simple interpretability and fast predictions</p>
             </div>
         </div>
     </div>
@@ -151,117 +137,33 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Why Random Forest?</h5>
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Why Random Forest for Hapag Farm?</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3 text-center mb-3">
                         <i class="fas fa-trophy fa-3x text-warning mb-2"></i>
                         <h6>Highest Accuracy</h6>
-                        <p class="text-muted">95.4% test accuracy</p>
-                    </div>
-                    <div class="col-md-3 text-center mb-3">
-                        <i class="fas fa-eye fa-3x text-primary mb-2"></i>
-                        <h6>Interpretable</h6>
-                        <p class="text-muted">Clear feature importance</p>
+                        <p class="text-muted">Best test accuracy and F1-score</p>
                     </div>
                     <div class="col-md-3 text-center mb-3">
                         <i class="fas fa-shield-alt fa-3x text-success mb-2"></i>
                         <h6>Robust</h6>
-                        <p class="text-muted">Handles outliers well</p>
+                        <p class="text-muted">Handles noisy sensor data</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <i class="fas fa-balance-scale fa-3x text-primary mb-2"></i>
+                        <h6>Balanced</h6>
+                        <p class="text-muted">Low variance, stable predictions</p>
                     </div>
                     <div class="col-md-3 text-center mb-3">
                         <i class="fas fa-seedling fa-3x text-info mb-2"></i>
-                        <h6>Agriculture Standard</h6>
-                        <p class="text-muted">Industry proven</p>
+                        <h6>Agriculture Proven</h6>
+                        <p class="text-muted">Industry standard for crop data</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script>
-// Performance Metrics Comparison Chart
-const metricsCtx = document.getElementById('metricsChart').getContext('2d');
-new Chart(metricsCtx, {
-    type: 'bar',
-    data: {
-        labels: ['Val Accuracy', 'Test Accuracy', 'Precision', 'Recall', 'F1-Score'],
-        datasets: [{
-            label: 'Random Forest',
-            data: [0.968, 0.954, 0.954, 0.954, 0.954],
-            backgroundColor: '#10b981'
-        }, {
-            label: 'LightGBM',
-            data: [0.952, 0.941, 0.941, 0.941, 0.941],
-            backgroundColor: '#f59e0b'
-        }, {
-            label: 'XGBoost',
-            data: [0.948, 0.937, 0.937, 0.937, 0.937],
-            backgroundColor: '#3b82f6'
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: false,
-                min: 0.9,
-                max: 1.0
-            }
-        },
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
-});
-
-// Feature Importance Charts
-function drawFeatureImportance(canvasId, importances, colors) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['N', 'P', 'K', 'pH', 'Humidity'],
-            datasets: [{
-                data: importances,
-                backgroundColor: colors
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 0.25
-                }
-            }
-        }
-    });
-}
-
-// Random Forest Feature Importance
-drawFeatureImportance('featureRF', [0.200, 0.203, 0.197, 0.199, 0.201], 
-    ['#10b981', '#10b981', '#10b981', '#10b981', '#10b981']);
-
-// LightGBM Feature Importance
-drawFeatureImportance('featureLGB', [0.198, 0.205, 0.195, 0.201, 0.201], 
-    ['#f59e0b', '#f59e0b', '#f59e0b', '#f59e0b', '#f59e0b']);
-
-// XGBoost Feature Importance
-drawFeatureImportance('featureXGB', [0.202, 0.199, 0.198, 0.200, 0.201], 
-    ['#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6']);
-</script>
 {% endblock %}
