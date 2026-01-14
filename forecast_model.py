@@ -2,26 +2,52 @@
 import numpy as np
 from datetime import datetime, timedelta
 import joblib
+import os
 
 class SensorForecaster:
     def __init__(self):
-        self.history_window = 10  # Use last 10 readings
+        self.history_window = 10
+        self.models = None
+        self.scalers = None
+        self.load_models()
+    
+    def load_models(self):
+        """Load trained ML models if available"""
+        try:
+            if os.path.exists('forecast_model.pkl'):
+                data = joblib.load('forecast_model.pkl')
+                self.models = data['models']
+                self.scalers = data['scalers']
+        except:
+            pass
     
     def forecast(self, historical_data, sensor_name, hours_ahead=24):
-        """Simple linear regression forecast"""
+        """ML-based forecast if model exists, else linear regression"""
         if len(historical_data) < 3:
             return None
         
         values = np.array(historical_data[-self.history_window:])
-        x = np.arange(len(values))
         
-        # Linear fit
-        coeffs = np.polyfit(x, values, 1)
-        slope, intercept = coeffs
+        # Try ML model first
+        if self.models and sensor_name in self.models:
+            try:
+                model = self.models[sensor_name]
+                scaler = self.scalers[sensor_name]
+                
+                # Scale input
+                scaled_values = scaler.transform(values.reshape(-1, 1))
+                X = scaled_values.reshape(1, -1)
+                
+                # Predict
+                scaled_pred = model.predict(X)
+                predicted = scaler.inverse_transform(scaled_pred.reshape(-1, 1))[0][0]
+            except:
+                # Fallback to linear regression
+                predicted = self._linear_forecast(values, hours_ahead)
+        else:
+            # Linear regression fallback
+            predicted = self._linear_forecast(values, hours_ahead)
         
-        # Predict future value
-        future_x = len(values) + (hours_ahead / 24)
-        predicted = slope * future_x + intercept
         change = predicted - values[-1]
         
         # Critical thresholds
@@ -44,9 +70,17 @@ class SensorForecaster:
             'current': float(values[-1]),
             'predicted': float(predicted),
             'change': float(change),
-            'trend': 'increasing' if slope > 0 else 'decreasing',
+            'trend': 'increasing' if change > 0 else 'decreasing',
             'alert': alert
         }
+    
+    def _linear_forecast(self, values, hours_ahead):
+        """Fallback linear regression"""
+        x = np.arange(len(values))
+        coeffs = np.polyfit(x, values, 1)
+        slope, intercept = coeffs
+        future_x = len(values) + (hours_ahead / 24)
+        return slope * future_x + intercept
 
 def generate_forecasts(sensor_history):
     """Generate forecasts for all sensors"""
