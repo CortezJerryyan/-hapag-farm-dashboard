@@ -167,35 +167,121 @@ body::before {
 
 /* Health Score Circle */
 .health-circle {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     background: conic-gradient(
         var(--success-green) 0deg,
         var(--success-green) calc(var(--score, 0) * 3.6deg),
-        var(--border-light) calc(var(--score, 0) * 3.6deg),
-        var(--border-light) 360deg
+        rgba(255, 255, 255, 0.2) calc(var(--score, 0) * 3.6deg),
+        rgba(255, 255, 255, 0.2) 360deg
     );
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    animation: glowPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(67, 160, 71, 0.6),
+                0 0 60px rgba(67, 160, 71, 0.4),
+                inset 0 0 20px rgba(67, 160, 71, 0.2);
 }
 
 .health-circle::before {
     content: '';
-    width: 90px;
-    height: 90px;
-    background: white;
+    width: 110px;
+    height: 110px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
     border-radius: 50%;
     position: absolute;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 .health-value {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: white;
     z-index: 1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(67, 160, 71, 0.6),
+                    0 0 60px rgba(67, 160, 71, 0.4),
+                    inset 0 0 20px rgba(67, 160, 71, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(67, 160, 71, 0.8),
+                    0 0 80px rgba(67, 160, 71, 0.6),
+                    inset 0 0 30px rgba(67, 160, 71, 0.3);
+    }
+}
+
+/* Dynamic glow based on score */
+.health-circle[data-score="100"],
+.health-circle[data-score="99"],
+.health-circle[data-score="98"],
+.health-circle[data-score="97"],
+.health-circle[data-score="96"],
+.health-circle[data-score="95"],
+.health-circle[data-score="94"],
+.health-circle[data-score="93"],
+.health-circle[data-score="92"],
+.health-circle[data-score="91"],
+.health-circle[data-score="90"],
+.health-circle[data-score="89"],
+.health-circle[data-score="88"],
+.health-circle[data-score="87"],
+.health-circle[data-score="86"],
+.health-circle[data-score="85"],
+.health-circle[data-score="84"],
+.health-circle[data-score="83"],
+.health-circle[data-score="82"],
+.health-circle[data-score="81"],
+.health-circle[data-score="80"] {
+    box-shadow: 0 0 40px rgba(67, 160, 71, 0.9),
+                0 0 80px rgba(67, 160, 71, 0.7),
+                0 0 120px rgba(67, 160, 71, 0.5),
+                inset 0 0 30px rgba(67, 160, 71, 0.4);
+}
+
+.health-circle[data-score="79"],
+.health-circle[data-score="78"],
+.health-circle[data-score="77"],
+.health-circle[data-score="76"],
+.health-circle[data-score="75"],
+.health-circle[data-score="74"],
+.health-circle[data-score="73"],
+.health-circle[data-score="72"],
+.health-circle[data-score="71"],
+.health-circle[data-score="70"],
+.health-circle[data-score="69"],
+.health-circle[data-score="68"],
+.health-circle[data-score="67"],
+.health-circle[data-score="66"],
+.health-circle[data-score="65"],
+.health-circle[data-score="64"],
+.health-circle[data-score="63"],
+.health-circle[data-score="62"],
+.health-circle[data-score="61"],
+.health-circle[data-score="60"] {
+    box-shadow: 0 0 35px rgba(255, 193, 7, 0.8),
+                0 0 70px rgba(255, 193, 7, 0.6),
+                0 0 100px rgba(255, 193, 7, 0.4),
+                inset 0 0 25px rgba(255, 193, 7, 0.3);
+}
+
+.health-circle[data-score^="5"],
+.health-circle[data-score^="4"],
+.health-circle[data-score^="3"],
+.health-circle[data-score^="2"],
+.health-circle[data-score^="1"],
+.health-circle[data-score="0"] {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.8),
+                0 0 60px rgba(239, 68, 68, 0.6),
+                0 0 90px rgba(239, 68, 68, 0.4),
+                inset 0 0 20px rgba(239, 68, 68, 0.3);
 }
 
 /* Weather Metrics */
@@ -481,17 +567,17 @@ body::before {
     
     /* Mobile health circle */
     .health-circle {
-        width: 100px;
-        height: 100px;
+        width: 120px;
+        height: 120px;
     }
     
     .health-circle::before {
-        width: 75px;
-        height: 75px;
+        width: 85px;
+        height: 85px;
     }
     
     .health-value {
-        font-size: 1rem;
+        font-size: 1.2rem;
     }
     
     /* Mobile crop recommendation */
