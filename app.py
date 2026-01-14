@@ -168,7 +168,17 @@ def fetch_latest_data():
                 key = list(data.keys())[0]
                 values = data[key]
                 timestamp = values.get('timestamp', values.get('date', 'Unknown'))
-                return values, timestamp
+                
+                # Map sensor field names to app field names
+                mapped_values = {
+                    'N': values.get('N', values.get('nitrogen', 0)),
+                    'P': values.get('P', values.get('phosphorus', 0)),
+                    'K': values.get('K', values.get('potassium', 0)),
+                    'ph': values.get('ph', values.get('pH', 0)),
+                    'humidity': values.get('humidity', values.get('soil_moisture', 0)),
+                    'timestamp': timestamp
+                }
+                return mapped_values, timestamp
     except:
         pass
     return None, None
