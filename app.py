@@ -614,6 +614,23 @@ def analytics():
     chart_json = create_trend_chart(data) if has_data else None
     trends = calculate_trend_analysis(data) if has_data else {}
     
+    # Fetch current sensor data for gauges (same as Dashboard)
+    current_data, current_timestamp = fetch_latest_data()
+    current_sensor = {
+        'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0
+    }
+    if current_data:
+        try:
+            current_sensor = {
+                'N': float(current_data.get('N', 0)),
+                'P': float(current_data.get('P', 0)),
+                'K': float(current_data.get('K', 0)),
+                'ph': float(current_data.get('ph', 0)),
+                'humidity': float(current_data.get('humidity', 0))
+            }
+        except:
+            pass
+    
     # Calculate summary statistics
     summary_stats = {}
     if has_data:
@@ -646,7 +663,8 @@ def analytics():
                          chart_json=chart_json,
                          has_data=data is not None,
                          trends=trends,
-                         summary_stats=summary_stats)
+                         summary_stats=summary_stats,
+                         current_sensor=current_sensor)
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():

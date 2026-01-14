@@ -408,23 +408,20 @@ function drawGauge(canvasId, value, maxValue, label) {
     ctx.fillText(value.toFixed(1), centerX, centerY);
 }
 
-// Fetch current sensor data and draw gauges
-fetch('/api/refresh')
-    .then(response => response.json())
-    .then(data => {
-        if (data.connected) {
-            drawGauge('gaugeN', data.N || 40, 200, 'N');
-            drawGauge('gaugeP', data.P || 20, 100, 'P');
-            drawGauge('gaugeK', data.K || 60, 200, 'K');
-            drawGauge('gaugePH', data.ph || 6.5, 14, 'pH');
-            drawGauge('gaugeHumidity', data.humidity || 55, 100, 'Humidity');
-            
-            // Calculate health score
-            const health = ((data.N/200 + data.P/100 + data.K/200) / 3) * 100;
-            drawGauge('gaugeHealth', health, 100, 'Health');
-        }
-    })
-    .catch(error => console.error('Error fetching sensor data:', error));
+// Fetch current sensor data and draw gauges - use backend data
+const currentSensor = {{ current_sensor|tojson }};
+
+if (currentSensor && currentSensor.N !== undefined) {
+    drawGauge('gaugeN', currentSensor.N, 200, 'N');
+    drawGauge('gaugeP', currentSensor.P, 100, 'P');
+    drawGauge('gaugeK', currentSensor.K, 200, 'K');
+    drawGauge('gaugePH', currentSensor.ph, 14, 'pH');
+    drawGauge('gaugeHumidity', currentSensor.humidity, 100, 'Humidity');
+    
+    // Calculate health score
+    const health = ((currentSensor.N/200 + currentSensor.P/100 + currentSensor.K/200) / 3) * 100;
+    drawGauge('gaugeHealth', health, 100, 'Health');
+}
 
 function exportData() {
     // Create CSV from chart data
