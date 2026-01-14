@@ -206,14 +206,18 @@
                             <h3 class="text-success mb-2">{{ prediction_name }}</h3>
                             {% if confidence > 0 %}
                                 <div class="mb-2">
-                                    <small class="text-muted">AI Confidence: {{ confidence|round }}%</small>
+                                    <small class="text-muted">Binary Logic: {{ confidence|round }}%</small>
                                     <div class="progress">
                                         <div class="progress-bar bg-success" style="width: {{ confidence }}%"></div>
                                     </div>
                                 </div>
-                                <p class="text-muted mb-0">Based on machine learning analysis</p>
-                            {% else %}
-                                <p class="text-muted mb-0">Based on expert system analysis</p>
+                            {% endif %}
+                            {% if npk_status %}
+                                <div class="mt-2">
+                                    <span class="badge bg-{{ 'success' if npk_status.N == 'MEDIUM' else 'warning' }}">N: {{ npk_status.N }}</span>
+                                    <span class="badge bg-{{ 'success' if npk_status.P == 'MEDIUM' else 'warning' }}">P: {{ npk_status.P }}</span>
+                                    <span class="badge bg-{{ 'success' if npk_status.K == 'MEDIUM' else 'warning' }}">K: {{ npk_status.K }}</span>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
