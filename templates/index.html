@@ -260,25 +260,10 @@
             </div>
         </div>
     </div>
-
-    <!-- Forecasting Predictions -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Predictive Forecasting</h5>
-            </div>
-            <div class="card-body" id="forecast-alerts">
-                <div class="text-center text-muted">
-                    <i class="fas fa-spinner fa-spin me-2"></i>Loading predictions...
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/forecast.js') }}"></script>
 <script>
 // Initialize metric cards and health circle
 document.addEventListener('DOMContentLoaded', function() {

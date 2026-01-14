@@ -7,7 +7,7 @@ function loadForecasts() {
             if (!container) return;
             
             let html = '<div class="forecast-section">';
-            html += '<h3 style="margin-bottom: 15px; color: #1f2937;">📊 Predictions (Next 24-72 Hours)</h3>';
+            html += '<h3 style="margin-bottom: 15px; color: #000; font-family: Arial, sans-serif; font-weight: 600;">📊 Predictions (Next 24-72 Hours)</h3>';
             
             let hasAlerts = false;
             
@@ -20,15 +20,15 @@ function loadForecasts() {
                     const change24 = f24.change > 0 ? `+${f24.change.toFixed(1)}` : f24.change.toFixed(1);
                     const arrow = f24.trend === 'increasing' ? '📈' : '📉';
                     
-                    html += `<div class="forecast-item" style="padding: 10px; margin: 8px 0; background: #f9fafb; border-left: 3px solid #3b82f6; border-radius: 4px;">`;
-                    html += `<strong>${sensor}:</strong> ${f24.current.toFixed(1)} → ${f24.predicted.toFixed(1)} (${change24}) ${arrow}`;
+                    html += `<div class="forecast-item" style="padding: 12px; margin: 10px 0; background: #f9fafb; border-left: 4px solid #3b82f6; border-radius: 6px; font-family: Arial, sans-serif;">`;
+                    html += `<strong style="color: #000; font-size: 15px;">${sensor}:</strong> <span style="color: #000;">${f24.current.toFixed(1)} → ${f24.predicted.toFixed(1)} (${change24}) ${arrow}</span>`;
                     
                     // Show alert if critical
                     if (f24.alert) {
-                        html += `<div style="color: #dc2626; font-weight: 600; margin-top: 5px;">⚠️ ${f24.alert}</div>`;
+                        html += `<div style="color: #dc2626; font-weight: 600; margin-top: 6px; font-size: 14px;">⚠️ ${f24.alert}</div>`;
                         hasAlerts = true;
                     } else if (f72.alert) {
-                        html += `<div style="color: #f59e0b; margin-top: 5px;">⚠️ ${f72.alert}</div>`;
+                        html += `<div style="color: #f59e0b; font-weight: 500; margin-top: 6px; font-size: 14px;">⚠️ ${f72.alert}</div>`;
                         hasAlerts = true;
                     }
                     
@@ -37,7 +37,7 @@ function loadForecasts() {
             }
             
             if (!hasAlerts) {
-                html += '<p style="color: #10b981; font-weight: 500;">✓ All sensors within safe ranges</p>';
+                html += '<p style="color: #10b981; font-weight: 600; font-size: 15px; font-family: Arial, sans-serif;">✓ All sensors within safe ranges</p>';
             }
             
             html += '</div>';
