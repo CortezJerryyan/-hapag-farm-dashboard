@@ -290,7 +290,7 @@ function addLoadingStates() {
     });
 }
 
-// Auto-refresh functionality - Check every 10 seconds
+// Auto-refresh functionality - Refresh every 10 seconds
 function startAutoRefresh() {
     if (isAutoRefresh) return;
     
@@ -298,15 +298,8 @@ function startAutoRefresh() {
     const interval = 10000; // 10 seconds
     
     refreshInterval = setInterval(() => {
-        refreshData();
+        location.reload(); // Just reload the page
     }, interval);
-    
-    // Update UI
-    const refreshBtn = document.querySelector('.btn-refresh');
-    if (refreshBtn) {
-        refreshBtn.innerHTML = '<i class="fas fa-pause me-1"></i>Pause';
-        refreshBtn.onclick = stopAutoRefresh;
-    }
 }
 
 function stopAutoRefresh() {
@@ -314,72 +307,10 @@ function stopAutoRefresh() {
     
     isAutoRefresh = false;
     clearInterval(refreshInterval);
-    
-    // Update UI
-    const refreshBtn = document.querySelector('.btn-refresh');
-    if (refreshBtn) {
-        refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh';
-        refreshBtn.onclick = startAutoRefresh;
-    }
 }
-
-// Store last values to detect changes
-let lastSensorValues = {};
 
 function refreshData() {
-    fetch('/api/refresh')
-        .then(response => response.json())
-        .then(data => {
-            if (data.connected) {
-                // Check if values changed
-                const valuesChanged = hasValuesChanged(data);
-                
-                if (valuesChanged) {
-                    // Update sensor values
-                    updateSensorValues(data);
-                    updateConnectionStatus(true);
-                    lastSensorValues = {...data};
-                } else {
-                    // Values didn't change - sensor might be offline
-                    updateConnectionStatus(false);
-                }
-            } else {
-                updateConnectionStatus(false);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            updateConnectionStatus(false);
-        });
-}
-
-function hasValuesChanged(newData) {
-    if (Object.keys(lastSensorValues).length === 0) {
-        return true; // First load
-    }
-    
-    // Check if any sensor value changed
-    const keys = ['N', 'P', 'K', 'ph', 'humidity'];
-    for (let key of keys) {
-        if (newData[key] !== lastSensorValues[key]) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-function updateConnectionStatus(isConnected) {
-    const badge = document.querySelector('.badge');
-    if (badge) {
-        if (isConnected) {
-            badge.className = 'badge bg-success me-2';
-            badge.innerHTML = '<i class="fas fa-wifi me-1"></i>Connected';
-        } else {
-            badge.className = 'badge bg-danger me-2';
-            badge.innerHTML = '<i class="fas fa-wifi me-1"></i>Offline';
-        }
-    }
+    location.reload();
 }
 
 function updateSensorValues(data) {
