@@ -43,30 +43,36 @@ body::before {
 
 /* Desktop Navigation with Glass */
 .mobile-nav {
-    background: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(46, 125, 50, 0.25) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .navbar-brand {
     font-weight: 800;
     font-size: 1.5rem;
     color: white !important;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .nav-link {
     color: white !important;
     font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .nav-link:hover {
     color: var(--light-green) !important;
     transform: translateY(-1px);
+}
+
+.navbar-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    font-weight: 500;
 }
 
 /* Mobile Bottom Navigation - Hidden by Default */
@@ -76,13 +82,13 @@ body::before {
 
 /* Glassmorphism Metric Cards */
 .metric-card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 24px;
     padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-left: 5px solid var(--primary-green);
     transition: all 0.3s ease;
     height: 100%;
@@ -90,21 +96,47 @@ body::before {
 
 .metric-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.35);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     border-left-width: 6px;
 }
 
 .metric-card.metric-optimal { 
     border-left-color: var(--success-green);
-    background: rgba(232, 245, 233, 0.9);
+    background: rgba(232, 245, 233, 0.2);
 }
 .metric-card.metric-warning { 
     border-left-color: var(--warning-orange);
-    background: rgba(255, 243, 224, 0.9);
+    background: rgba(255, 243, 224, 0.2);
 }
 .metric-card.metric-critical { 
     border-left-color: #EF4444;
-    background: rgba(254, 242, 242, 0.9);
+    background: rgba(254, 242, 242, 0.2);
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.metric-unit {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .metric-card.metric-optimal { border-left-color: var(--success-green); }
@@ -280,31 +312,51 @@ body::before {
 
 /* Cards with Glass Effect */
 .card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.35);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .card-header {
-    background: rgba(46, 125, 50, 0.15);
-    border-bottom: 2px solid rgba(46, 125, 50, 0.2);
+    background: rgba(46, 125, 50, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 24px 24px 0 0 !important;
     backdrop-filter: blur(10px);
 }
 
 .card-header h3, .card-header h5 {
-    color: var(--primary-green);
+    color: white;
     font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-header small {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    color: white;
+}
+
+.card-body h3, .card-body h4, .card-body h5, .card-body h6 {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.card-body p, .card-body span, .card-body div {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Navigation */
