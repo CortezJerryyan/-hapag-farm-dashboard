@@ -221,10 +221,30 @@
 
 {% block scripts %}
 <script>
-// Initialize metric cards
+// Initialize metric cards and health circle
 document.addEventListener('DOMContentLoaded', function() {
     updateMetricCards();
+    animateHealthCircle();
 });
+
+function animateHealthCircle() {
+    const healthCircle = document.querySelector('.health-circle');
+    if (healthCircle) {
+        const score = parseInt(healthCircle.dataset.score);
+        healthCircle.style.setProperty('--score', score);
+        
+        // Animate from 0 to actual score
+        let currentScore = 0;
+        const interval = setInterval(() => {
+            if (currentScore <= score) {
+                healthCircle.style.setProperty('--score', currentScore);
+                currentScore++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 20);
+    }
+}
 
 function updateMetricCards() {
     const thresholds = {
