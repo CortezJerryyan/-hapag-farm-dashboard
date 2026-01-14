@@ -337,16 +337,53 @@ function refreshData() {
         .then(response => response.json())
         .then(data => {
             if (data.connected) {
-                location.reload();
-            } else {
-                alert('Unable to fetch new data');
+                // Update sensor values without full page reload
+                updateSensorValues(data);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error refreshing data');
         });
 }
+
+function updateSensorValues(data) {
+    // Update metric cards
+    const metrics = ['N', 'P', 'K', 'ph', 'humidity', 'temperature'];
+    metrics.forEach(metric => {
+        const card = document.querySelector(`[data-param="${metric}"]`);
+        if (card && data[metric] !== undefined) {
+            const valueEl = card.querySelector('.metric-value');
+            if (valueEl) {
+                const unit = valueEl.querySelector('.metric-unit');
+                const unitText = unit ? unit.outerHTML : '';
+                valueEl.innerHTML = data[metric] + ' ' + unitText;
+            }
+            card.dataset.value = data[metric];
+            
+            // Update progress bar
+            const progressBar = card.querySelector('.progress-bar');
+            if (progressBar) {
+                let maxVal = 200;
+                if (metric === 'P') maxVal = 60;
+                else if (metric === 'ph') maxVal = 14;
+                else if (metric === 'humidity' || metric === 'temperature') maxVal = 100;
+                progressBar.style.width = ((data[metric] / maxVal) * 100) + '%';
+            }
+        }
+    });
+    
+    // Update metric cards status
+    updateMetricCards();
+    
+    // Update timestamp
+    const timestampEl = document.querySelector('.card-body small');
+    if (timestampEl && data.timestamp) {
+        timestampEl.textContent = data.timestamp;
+    }
+}
+
+// Auto-refresh every 5 seconds
+setInterval(refreshData, 5000);
 
 function detectLocation() {
     if (navigator.geolocation) {

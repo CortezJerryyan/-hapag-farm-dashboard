@@ -839,11 +839,12 @@ def api_refresh():
     if data:
         try:
             sensor_data = {
-                'N': float(data.get('N', 40)),
-                'P': float(data.get('P', 20)),
-                'K': float(data.get('K', 60)),
-                'ph': float(data.get('ph', 6.5)),
-                'humidity': float(data.get('humidity', 55)),
+                'N': float(data.get('N', 0)),
+                'P': float(data.get('P', 0)),
+                'K': float(data.get('K', 0)),
+                'ph': float(data.get('ph', 0)),
+                'humidity': float(data.get('humidity', 0)),
+                'temperature': float(data.get('temperature', 0)),
                 'timestamp': timestamp,
                 'connected': True
             }
