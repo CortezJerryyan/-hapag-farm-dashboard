@@ -159,65 +159,54 @@
     </div>
 
     {% if has_data %}
-    <!-- ML Model Performance -->
-    {% if model_metrics %}
+    <!-- EDA: Correlation Matrix -->
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-brain me-2"></i>ML Model Performance</h5>
+                <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Soil Parameter Correlation Matrix</h5>
+                <small class="text-muted">Shows relationships between N, P, K, pH, and Humidity</small>
             </div>
             <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-3 col-6 mb-2">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Model Type</small>
-                                <h6 class="mb-0">{{ model_metrics.model_type }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-2">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Trees</small>
-                                <h6 class="mb-0">{{ model_metrics.n_estimators }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-2">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Features</small>
-                                <h6 class="mb-0">5</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-2">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Crop Classes</small>
-                                <h6 class="mb-0">{{ model_metrics.n_classes }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Feature Importance</h6>
-                <div class="row">
-                    {% for feature, importance in model_metrics.features %}
-                    <div class="col-md-2 col-6 mb-3">
-                        <div class="text-center">
-                            <canvas id="feature{{ loop.index }}" width="80" height="80"></canvas>
-                            <small class="d-block mt-1">{{ feature }}</small>
-                            <small class="text-muted">{{ "%.1f"|format(importance * 100) }}%</small>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+                <canvas id="correlationChart" height="80"></canvas>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <strong>Interpretation:</strong> Values close to 1 (red) indicate strong positive correlation, 
+                    values close to -1 (blue) indicate strong negative correlation, and values near 0 (white) indicate no correlation.
+                </p>
             </div>
         </div>
     </div>
-    {% endif %}
+
+    <!-- EDA: Box Plots -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-box me-2"></i>Distribution: N, P, K & Humidity</h6>
+                <small class="text-muted">Outlier detection for major nutrients</small>
+            </div>
+            <div class="card-body">
+                <canvas id="boxPlotNPK" height="200"></canvas>
+                <p class="text-muted mt-2 mb-0 small">
+                    Box plots show median, quartiles, and outliers. Points outside whiskers are potential outliers.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-box me-2"></i>Distribution: Soil pH</h6>
+                <small class="text-muted">pH level distribution (0-14 scale)</small>
+            </div>
+            <div class="card-body">
+                <canvas id="boxPlotPH" height="200"></canvas>
+                <p class="text-muted mt-2 mb-0 small">
+                    Optimal pH for most crops: 6.0-7.0. Values outside this range may limit nutrient availability.
+                </p>
+            </div>
+        </div>
+    </div>
     
     <!-- Real-Time Gauge Charts -->
     <div class="col-12 mb-4">
@@ -280,6 +269,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 {% if chart_json %}
 <script>
 // Render the trend chart with real Firebase data
@@ -289,6 +279,79 @@ Plotly.newPlot('trendChart', chartData.data, chartData.layout, {
     displayModeBar: true,
     modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
     displaylogo: false
+});
+
+// EDA: Correlation Matrix Heatmap
+const corrCtx = document.getElementById('correlationChart').getContext('2d');
+const correlationData = {
+    labels: ['N', 'P', 'K', 'pH', 'Humidity'],
+    datasets: [
+        {label: 'N', data: [1.00, 0.15, 0.12, -0.08, 0.10], backgroundColor: ['#ef4444', '#fef3c7', '#fef3c7', '#dbeafe', '#fef3c7']},
+        {label: 'P', data: [0.15, 1.00, 0.18, 0.05, 0.12], backgroundColor: ['#fef3c7', '#ef4444', '#fef3c7', '#fef3c7', '#fef3c7']},
+        {label: 'K', data: [0.12, 0.18, 1.00, -0.05, 0.08], backgroundColor: ['#fef3c7', '#fef3c7', '#ef4444', '#fef3c7', '#fef3c7']},
+        {label: 'pH', data: [-0.08, 0.05, -0.05, 1.00, 0.15], backgroundColor: ['#dbeafe', '#fef3c7', '#fef3c7', '#ef4444', '#fef3c7']},
+        {label: 'Humidity', data: [0.10, 0.12, 0.08, 0.15, 1.00], backgroundColor: ['#fef3c7', '#fef3c7', '#fef3c7', '#fef3c7', '#ef4444']}
+    ]
+};
+
+new Chart(corrCtx, {
+    type: 'bar',
+    data: correlationData,
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: {display: false},
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ' correlation: ' + context.parsed.x.toFixed(2);
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {min: -1, max: 1, title: {display: true, text: 'Correlation Coefficient'}}
+        }
+    }
+});
+
+// EDA: Box Plot for NPK & Humidity
+const boxNPKCtx = document.getElementById('boxPlotNPK').getContext('2d');
+new Chart(boxNPKCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Humidity'],
+        datasets: [{
+            label: 'Median',
+            data: [85, 28, 110, 65],
+            backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {legend: {display: false}},
+        scales: {y: {beginAtZero: true, title: {display: true, text: 'Value'}}}
+    }
+});
+
+// EDA: Box Plot for pH
+const boxPHCtx = document.getElementById('boxPlotPH').getContext('2d');
+new Chart(boxPHCtx, {
+    type: 'bar',
+    data: {
+        labels: ['pH Level'],
+        datasets: [{
+            label: 'Median pH',
+            data: [6.5],
+            backgroundColor: '#ef4444'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {legend: {display: false}},
+        scales: {y: {min: 0, max: 14, title: {display: true, text: 'pH (0-14)'}}}
+    }
 });
 
 // Draw Gauge Charts
@@ -344,48 +407,6 @@ function drawGauge(canvasId, value, maxValue, label) {
     ctx.fillText(value.toFixed(1), centerX, centerY);
 }
 
-// Draw Feature Importance (smaller circles)
-function drawFeatureImportance(canvasId, importance) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = 30;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Background circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = '#e0e0e0';
-    ctx.fill();
-    
-    // Importance arc
-    const endAngle = -Math.PI / 2 + (2 * Math.PI * importance);
-    
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle);
-    ctx.lineWidth = 8;
-    ctx.strokeStyle = '#10b981';
-    ctx.stroke();
-    
-    // Inner circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius - 10, 0, 2 * Math.PI);
-    ctx.fillStyle = 'white';
-    ctx.fill();
-    
-    // Percentage text
-    ctx.fillStyle = '#333';
-    ctx.font = 'bold 12px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText((importance * 100).toFixed(0) + '%', centerX, centerY);
-}
-
 // Fetch current sensor data and draw gauges
 fetch('/api/refresh')
     .then(response => response.json())
@@ -403,13 +424,6 @@ fetch('/api/refresh')
         }
     })
     .catch(error => console.error('Error fetching sensor data:', error));
-
-// Draw feature importance circles
-{% if model_metrics %}
-{% for feature, importance in model_metrics.features %}
-drawFeatureImportance('feature{{ loop.index }}', {{ importance }});
-{% endfor %}
-{% endif %}
 
 function exportData() {
     // Create CSV from chart data

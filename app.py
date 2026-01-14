@@ -637,30 +637,11 @@ def analytics():
         except:
             pass
     
-    # Get ML model metrics
-    model_metrics = None
-    if ml_model and model_loaded:
-        try:
-            # Get feature importance
-            feature_names = ['N', 'P', 'K', 'pH', 'Humidity']
-            importances = ml_model.feature_importances_
-            
-            model_metrics = {
-                'model_type': 'Random Forest',
-                'n_estimators': ml_model.n_estimators,
-                'features': list(zip(feature_names, importances)),
-                'n_classes': len(label_encoder.classes_),
-                'crops': list(label_encoder.classes_)
-            }
-        except:
-            pass
-    
     return render_template('analytics.html', 
                          chart_json=chart_json,
                          has_data=data is not None,
                          trends=trends,
-                         summary_stats=summary_stats,
-                         model_metrics=model_metrics)
+                         summary_stats=summary_stats)
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
