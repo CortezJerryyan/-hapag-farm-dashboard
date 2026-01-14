@@ -112,38 +112,72 @@
         </div>
     </div>
 
-    <!-- Weather -->
-    <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-cloud-sun me-2"></i>Weather Conditions</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-4">
-                        <div class="weather-metric">
-                            <i class="fas fa-thermometer-half fa-2x text-danger mb-2"></i>
-                            <div class="fw-bold">{{ weather.temperature }}°C</div>
-                            <small class="text-muted">Temperature</small>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="weather-metric">
-                            <i class="fas fa-tint fa-2x text-primary mb-2"></i>
-                            <div class="fw-bold">{{ weather.humidity }}%</div>
-                            <small class="text-muted">Humidity</small>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="weather-metric">
-                            <i class="fas fa-cloud-rain fa-2x text-info mb-2"></i>
-                            <div class="fw-bold">{{ weather.rainfall }} mm</div>
-                            <small class="text-muted">Rainfall</small>
-                        </div>
+    <!-- Weather - Google Style -->
+    <div class="col-12 mb-4">
+        <div class="card weather-card">
+            <div class="weather-header" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.3), rgba(255, 152, 0, 0.2)), url('/static/images/crops.jpg'); background-size: cover; background-position: center;">
+                <div class="weather-location">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    <span id="weatherLocation">{{ weather.location }}</span>
+                    <button class="btn btn-sm btn-light ms-2" onclick="detectLocation()" title="Detect my location">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                </div>
+                <div class="weather-current">
+                    <div class="weather-temp">{{ weather.temperature }}°</div>
+                    <div class="weather-desc">
+                        <span class="weather-icon">{{ weather.icon }}</span>
+                        <span>{{ weather.description }}</span>
                     </div>
                 </div>
-                <div class="text-center mt-3">
-                    <small class="text-muted">{{ weather.forecast }}</small>
+                <div class="weather-details">
+                    <div class="weather-detail-item">
+                        <i class="fas fa-tint"></i>
+                        <span>{{ weather.humidity }}%</span>
+                    </div>
+                    <div class="weather-detail-item">
+                        <i class="fas fa-wind"></i>
+                        <span>{{ weather.wind_speed }} km/h</span>
+                    </div>
+                    <div class="weather-detail-item">
+                        <i class="fas fa-cloud-rain"></i>
+                        <span>{{ weather.precipitation }} mm</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hourly Forecast -->
+            <div class="card-body">
+                <h6 class="mb-3"><i class="fas fa-clock me-2"></i>Hourly Forecast</h6>
+                <div class="hourly-forecast" id="hourlyForecast">
+                    {% for hour in weather.hourly %}
+                    <div class="hourly-item">
+                        <div class="hourly-time">{{ hour.time }}</div>
+                        <div class="hourly-icon">{{ hour.icon }}</div>
+                        <div class="hourly-temp">{{ hour.temp }}°</div>
+                        {% if hour.precipitation > 0 %}
+                        <div class="hourly-rain">{{ hour.precipitation }}mm</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Daily Forecast -->
+                <h6 class="mb-3 mt-4"><i class="fas fa-calendar-week me-2"></i>7-Day Forecast</h6>
+                <div class="daily-forecast" id="dailyForecast">
+                    {% for day in weather.daily %}
+                    <div class="daily-item">
+                        <div class="daily-day">{{ day.day }}</div>
+                        <div class="daily-icon">{{ day.icon }}</div>
+                        <div class="daily-temps">
+                            <span class="daily-max">{{ day.max_temp }}°</span>
+                            <span class="daily-min">{{ day.min_temp }}°</span>
+                        </div>
+                        {% if day.precipitation > 0 %}
+                        <div class="daily-rain"><i class="fas fa-droplet"></i> {{ day.precipitation }}mm</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -298,6 +332,62 @@ function refreshData() {
             console.error('Error:', error);
             alert('Error refreshing data');
         });
+}
+
+function detectLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                fetch(`/api/weather?lat=${lat}&lon=${lon}`)
+                    .then(response => response.json())
+                    .then(weather => {
+                        updateWeatherUI(weather);
+                    })
+                    .catch(error => {
+                        console.error('Weather error:', error);
+                        alert('Unable to fetch weather for your location');
+                    });
+            },
+            error => {
+                console.error('Location error:', error);
+                alert('Please enable location access to detect your area');
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by your browser');
+    }
+}
+
+function updateWeatherUI(weather) {
+    document.getElementById('weatherLocation').textContent = weather.location;
+    
+    // Update hourly forecast
+    const hourlyHTML = weather.hourly.map(hour => `
+        <div class="hourly-item">
+            <div class="hourly-time">${hour.time}</div>
+            <div class="hourly-icon">${hour.icon}</div>
+            <div class="hourly-temp">${hour.temp}°</div>
+            ${hour.precipitation > 0 ? `<div class="hourly-rain">${hour.precipitation}mm</div>` : ''}
+        </div>
+    `).join('');
+    document.getElementById('hourlyForecast').innerHTML = hourlyHTML;
+    
+    // Update daily forecast
+    const dailyHTML = weather.daily.map(day => `
+        <div class="daily-item">
+            <div class="daily-day">${day.day}</div>
+            <div class="daily-icon">${day.icon}</div>
+            <div class="daily-temps">
+                <span class="daily-max">${day.max_temp}°</span>
+                <span class="daily-min">${day.min_temp}°</span>
+            </div>
+            ${day.precipitation > 0 ? `<div class="daily-rain"><i class="fas fa-droplet"></i> ${day.precipitation}mm</div>` : ''}
+        </div>
+    `).join('');
+    document.getElementById('dailyForecast').innerHTML = dailyHTML;
 }
 </script>
 {% endblock %}

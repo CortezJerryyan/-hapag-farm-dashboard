@@ -182,28 +182,110 @@ def fetch_firebase_data():
         pass
     return None
 
-def get_weather_data():
+def get_weather_data(lat=None, lon=None):
+    """Get weather data based on coordinates or default to Philippines"""
+    # Default to Indang, Cavite if no coordinates provided
+    if lat is None or lon is None:
+        lat = 14.1953
+        lon = 120.8769
+    
     try:
-        url = "https://api.open-meteo.com/v1/forecast?latitude=14.5995&longitude=120.9842&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation"
+        # Current weather and forecast
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia/Manila"
         response = requests.get(url, timeout=10)
+        
         if response.status_code == 200:
             data = response.json()
-            if 'current_weather' in data and 'hourly' in data:
-                current = data['current_weather']
-                hourly = data['hourly']
-                if ('relativehumidity_2m' in hourly and 'precipitation' in hourly and
-                    len(hourly['relativehumidity_2m']) > 0 and len(hourly['precipitation']) >= 24):
-                    return {
-                        "temperature": current.get('temperature', 28.5),
-                        "humidity": hourly['relativehumidity_2m'][0],
-                        "rainfall": sum(hourly['precipitation'][:24]),
-                        "wind_speed": current.get('windspeed', 8.2),
-                        "forecast": "Real weather data"
-                    }
-    except:
-        pass
+            current = data.get('current_weather', {})
+            hourly = data.get('hourly', {})
+            daily = data.get('daily', {})
+            
+            # Get location name using reverse geocoding
+            location_url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json"
+            location_response = requests.get(location_url, timeout=5, headers={'User-Agent': 'HapagFarm/1.0'})
+            location_name = "Philippines"
+            
+            if location_response.status_code == 200:
+                location_data = location_response.json()
+                address = location_data.get('address', {})
+                location_name = address.get('city') or address.get('town') or address.get('municipality') or address.get('province', 'Philippines')
+            
+            # Weather code mapping
+            weather_codes = {
+                0: {"desc": "Clear sky", "icon": "☀️"},
+                1: {"desc": "Mainly clear", "icon": "🌤️"},
+                2: {"desc": "Partly cloudy", "icon": "⛅"},
+                3: {"desc": "Overcast", "icon": "☁️"},
+                45: {"desc": "Foggy", "icon": "🌫️"},
+                48: {"desc": "Foggy", "icon": "🌫️"},
+                51: {"desc": "Light drizzle", "icon": "🌦️"},
+                53: {"desc": "Drizzle", "icon": "🌦️"},
+                55: {"desc": "Heavy drizzle", "icon": "🌧️"},
+                61: {"desc": "Light rain", "icon": "🌧️"},
+                63: {"desc": "Rain", "icon": "🌧️"},
+                65: {"desc": "Heavy rain", "icon": "⛈️"},
+                80: {"desc": "Rain showers", "icon": "🌦️"},
+                95: {"desc": "Thunderstorm", "icon": "⛈️"},
+            }
+            
+            current_code = current.get('weathercode', 0)
+            weather_info = weather_codes.get(current_code, {"desc": "Clear", "icon": "☀️"})
+            
+            # Hourly forecast (next 24 hours)
+            hourly_forecast = []
+            for i in range(0, min(24, len(hourly.get('time', []))), 3):
+                hourly_forecast.append({
+                    'time': hourly['time'][i].split('T')[1][:5] if 'T' in hourly['time'][i] else hourly['time'][i],
+                    'temp': round(hourly['temperature_2m'][i]),
+                    'icon': weather_codes.get(hourly.get('weathercode', [0])[i], {"icon": "☀️"})['icon'],
+                    'precipitation': round(hourly.get('precipitation', [0])[i], 1)
+                })
+            
+            # Daily forecast (next 7 days)
+            daily_forecast = []
+            days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            for i in range(min(7, len(daily.get('time', [])))):
+                date_obj = datetime.strptime(daily['time'][i], '%Y-%m-%d')
+                daily_forecast.append({
+                    'day': days[date_obj.weekday()] if i > 0 else 'Today',
+                    'icon': weather_codes.get(daily.get('weathercode', [0])[i], {"icon": "☀️"})['icon'],
+                    'max_temp': round(daily['temperature_2m_max'][i]),
+                    'min_temp': round(daily['temperature_2m_min'][i]),
+                    'precipitation': round(daily.get('precipitation_sum', [0])[i], 1)
+                })
+            
+            return {
+                "location": location_name,
+                "temperature": round(current.get('temperature', 28)),
+                "feels_like": round(current.get('temperature', 28)),
+                "description": weather_info['desc'],
+                "icon": weather_info['icon'],
+                "humidity": hourly.get('relativehumidity_2m', [65])[0],
+                "wind_speed": round(current.get('windspeed', 8.2), 1),
+                "precipitation": round(sum(hourly.get('precipitation', [0])[:24]), 1),
+                "hourly": hourly_forecast,
+                "daily": daily_forecast,
+                "lat": lat,
+                "lon": lon
+            }
+    except Exception as e:
+        print(f"Weather error: {e}")
     
-    return {"temperature": 28.5, "humidity": 65, "rainfall": 12.3, "wind_speed": 8.2, "forecast": "Simulated data"}
+    # Fallback data
+    return {
+        "location": "Philippines",
+        "temperature": 28,
+        "feels_like": 30,
+        "description": "Partly cloudy",
+        "icon": "⛅",
+        "humidity": 65,
+        "wind_speed": 8.2,
+        "precipitation": 12.3,
+        "hourly": [],
+        "daily": [],
+        "lat": 14.1953,
+        "lon": 120.8769
+    }
 
 def get_condition_flag(value, param_type):
     try:
@@ -637,6 +719,14 @@ def api_test_connection():
     if data:
         return jsonify({'success': True, 'count': len(data)})
     return jsonify({'success': False})
+
+@app.route('/api/weather')
+def api_weather():
+    """API endpoint for weather with location"""
+    lat = request.args.get('lat', type=float)
+    lon = request.args.get('lon', type=float)
+    weather = get_weather_data(lat, lon)
+    return jsonify(weather)
 
 @app.route('/api/analytics_data')
 def api_analytics_data():
