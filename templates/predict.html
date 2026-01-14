@@ -121,17 +121,21 @@
                             <h3 class="text-success mb-2">{{ prediction_name }}</h3>
                             {% if confidence > 0 %}
                                 <div class="mb-3">
-                                    <small class="text-muted">AI Confidence: {{ confidence|round }}%</small>
+                                    <small class="text-muted">Binary Logic: {{ confidence|round }}%</small>
                                     <div class="progress mx-auto" style="width: 200px;">
-                                        {% if confidence >= 80 %}
-                                            <div class="progress-bar bg-success" style="width: {{ confidence }}%"></div>
-                                        {% elif confidence >= 60 %}
-                                            <div class="progress-bar bg-warning" style="width: {{ confidence }}%"></div>
-                                        {% else %}
-                                            <div class="progress-bar bg-danger" style="width: {{ confidence }}%"></div>
-                                        {% endif %}
+                                        <div class="progress-bar bg-success" style="width: {{ confidence }}%"></div>
                                     </div>
                                 </div>
+                            {% endif %}
+                            {% if npk_status %}
+                                <div class="mt-3">
+                                    <span class="badge bg-{{ 'success' if npk_status.N == 'MEDIUM' else 'warning' }}">N: {{ npk_status.N }}</span>
+                                    <span class="badge bg-{{ 'success' if npk_status.P == 'MEDIUM' else 'warning' }}">P: {{ npk_status.P }}</span>
+                                    <span class="badge bg-{{ 'success' if npk_status.K == 'MEDIUM' else 'warning' }}">K: {{ npk_status.K }}</span>
+                                </div>
+                            {% endif %}
+                            {% if binary_code %}
+                                <div class="mt-2"><small class="text-muted">Code: <code>{{ binary_code }}</code></small></div>
                             {% endif %}
                         </div>
                     </div>

@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 import plotly.graph_objects as go
 import plotly.utils
 from forecast_model import generate_forecasts
+from binary_crop_logic import get_binary_crop_recommendation, get_npk_status
 
 app = Flask(__name__)
 
@@ -612,18 +613,29 @@ def index():
         sensor_data['ph'], sensor_data['humidity']
     )
     
-    # Get crop recommendation
-    prediction_name, confidence = safe_ml_prediction(
-        sensor_data['N'], sensor_data['P'], sensor_data['K'], 
-        sensor_data['ph'], sensor_data['humidity']
+    # Get crop recommendation using binary logic first
+    binary_crops, binary_code, binary_confidence = get_binary_crop_recommendation(
+        sensor_data['N'], sensor_data['P'], sensor_data['K']
     )
     
-    if not prediction_name:
-        prediction_name = get_expert_recommendation(
+    if binary_crops:
+        prediction_name = ", ".join(binary_crops[:3])  # Show top 3
+        confidence = binary_confidence
+        npk_status = get_npk_status(sensor_data['N'], sensor_data['P'], sensor_data['K'])
+    else:
+        # Fallback to ML prediction
+        prediction_name, confidence = safe_ml_prediction(
             sensor_data['N'], sensor_data['P'], sensor_data['K'], 
             sensor_data['ph'], sensor_data['humidity']
         )
-        confidence = 0
+        
+        if not prediction_name:
+            prediction_name = get_expert_recommendation(
+                sensor_data['N'], sensor_data['P'], sensor_data['K'], 
+                sensor_data['ph'], sensor_data['humidity']
+            )
+            confidence = 0
+        npk_status = None
     
     # Get weather data
     weather = get_weather_data()
@@ -662,7 +674,8 @@ def index():
                          alerts=alerts,
                          danger_count=danger_count,
                          fertilizer_recs=fertilizer_recs,
-                         model_loaded=model_loaded)
+                         model_loaded=model_loaded,
+                         npk_status=npk_status if 'npk_status' in locals() else None)
 
 @app.route('/analytics')
 def analytics():
@@ -746,12 +759,20 @@ def predict():
             ph_in = float(request.form['ph'])
             hum_in = float(request.form['humidity'])
             
-            # Get prediction
-            prediction_name, confidence = safe_ml_prediction(n_in, p_in, k_in, ph_in, hum_in)
+            # Get binary logic recommendation first
+            binary_crops, binary_code, binary_confidence = get_binary_crop_recommendation(n_in, p_in, k_in)
+            npk_status = get_npk_status(n_in, p_in, k_in)
             
-            if not prediction_name:
-                prediction_name = get_expert_recommendation(n_in, p_in, k_in, ph_in, hum_in)
-                confidence = 0
+            if binary_crops:
+                prediction_name = ", ".join(binary_crops)
+                confidence = binary_confidence
+            else:
+                # Fallback to ML
+                prediction_name, confidence = safe_ml_prediction(n_in, p_in, k_in, ph_in, hum_in)
+                
+                if not prediction_name:
+                    prediction_name = get_expert_recommendation(n_in, p_in, k_in, ph_in, hum_in)
+                    confidence = 0
             
             # Get fertilizer recommendations
             fertilizer_recs = get_fertilizer_recommendation(n_in, p_in, k_in)
@@ -768,6 +789,8 @@ def predict():
                                  ph_msg=ph_msg,
                                  hum_status=hum_status,
                                  hum_msg=hum_msg,
+                                 npk_status=npk_status,
+                                 binary_code=binary_code if binary_crops else None,
                                  form_data={
                                      'nitrogen': n_in,
                                      'phosphorus': p_in,
