@@ -369,11 +369,11 @@ def create_trend_chart(data):
         # Create the plot
         fig = go.Figure()
         
-        # Add nutrient traces
+        # Add nutrient traces with cleaner styling
         nutrients = [
-            ('N', '#10b981', 'Nitrogen (ppm)'),
-            ('P', '#f59e0b', 'Phosphorus (ppm)'),
-            ('K', '#3b82f6', 'Potassium (ppm)')
+            ('N', '#10b981', 'Nitrogen'),
+            ('P', '#f59e0b', 'Phosphorus'),
+            ('K', '#3b82f6', 'Potassium')
         ]
         
         for nutrient, color, label in nutrients:
@@ -381,94 +381,88 @@ def create_trend_chart(data):
                 fig.add_trace(go.Scatter(
                     x=df['timestamp'],
                     y=df[nutrient],
-                    mode='lines+markers',
+                    mode='lines',
                     name=label,
-                    line=dict(color=color, width=3),
-                    marker=dict(size=8, color=color),
-                    hovertemplate=f'<b>{label}</b><br>' +
-                                'Date: %{x}<br>' +
-                                'Value: %{y:.1f}<br>' +
-                                '<extra></extra>'
+                    line=dict(color=color, width=2),
+                    hovertemplate=f'<b>{label}</b>: %{{y:.1f}}<extra></extra>'
                 ))
         
-        # Add pH and humidity on secondary y-axis
+        # Add pH and humidity on secondary y-axis with dashed lines
         if 'pH' in df.columns and not df['pH'].isna().all():
             fig.add_trace(go.Scatter(
                 x=df['timestamp'],
                 y=df['pH'],
-                mode='lines+markers',
-                name='pH Level',
+                mode='lines',
+                name='pH',
                 line=dict(color='#ef4444', width=2, dash='dash'),
-                marker=dict(size=6, color='#ef4444'),
                 yaxis='y2',
-                hovertemplate='<b>pH Level</b><br>' +
-                            'Date: %{x}<br>' +
-                            'pH: %{y:.1f}<br>' +
-                            '<extra></extra>'
+                hovertemplate='<b>pH</b>: %{y:.1f}<extra></extra>'
             ))
         
         if 'humidity' in df.columns and not df['humidity'].isna().all():
             fig.add_trace(go.Scatter(
                 x=df['timestamp'],
                 y=df['humidity'],
-                mode='lines+markers',
-                name='Humidity (%)',
+                mode='lines',
+                name='Humidity',
                 line=dict(color='#8b5cf6', width=2, dash='dot'),
-                marker=dict(size=6, color='#8b5cf6'),
                 yaxis='y2',
-                hovertemplate='<b>Humidity</b><br>' +
-                            'Date: %{x}<br>' +
-                            'Humidity: %{y:.1f}%<br>' +
-                            '<extra></extra>'
+                hovertemplate='<b>Humidity</b>: %{y:.0f}%<extra></extra>'
             ))
         
-        # Update layout with mobile-friendly settings
+        # Update layout - cleaner and more organized
         fig.update_layout(
             title={
-                'text': 'Soil Sensor Trends Over Time',
+                'text': 'Sensor Trends',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 16, 'color': '#1f2937'}
+                'font': {'size': 18, 'color': '#1f2937', 'family': 'Arial, sans-serif'}
             },
             xaxis={
-                'title': {'text': 'Date & Time', 'font': {'size': 11}},
+                'title': 'Date',
                 'showgrid': True,
-                'gridcolor': '#e5e7eb',
-                'tickformat': '%m/%d %H:%M',
-                'tickfont': {'size': 10}
+                'gridcolor': '#f3f4f6',
+                'tickformat': '%m/%d',
+                'tickfont': {'size': 11}
             },
             yaxis={
-                'title': {'text': 'Nutrients (ppm)', 'font': {'size': 11}},
+                'title': 'NPK (ppm)',
                 'showgrid': True,
-                'gridcolor': '#e5e7eb',
+                'gridcolor': '#f3f4f6',
                 'side': 'left',
-                'tickfont': {'size': 10}
+                'tickfont': {'size': 11},
+                'range': [0, 200]
             },
             yaxis2={
-                'title': {'text': 'pH/Humidity', 'font': {'size': 11}},
+                'title': 'pH / Humidity (%)',
                 'overlaying': 'y',
                 'side': 'right',
                 'showgrid': False,
-                'tickfont': {'size': 10}
+                'tickfont': {'size': 11},
+                'range': [0, 100]
             },
-            height=500,
-            margin=dict(l=50, r=50, t=80, b=50),
+            height=450,
+            margin=dict(l=60, r=60, t=60, b=50),
             showlegend=True,
             legend=dict(
                 orientation='h',
                 yanchor='bottom',
-                y=1.02,
+                y=-0.2,
                 xanchor='center',
                 x=0.5,
-                font={'size': 10},
-                bgcolor='rgba(255,255,255,0.8)',
+                font={'size': 11},
+                bgcolor='rgba(255,255,255,0.9)',
                 bordercolor='#e5e7eb',
                 borderwidth=1
             ),
             paper_bgcolor='white',
             plot_bgcolor='white',
             hovermode='x unified',
-            hoverlabel=dict(font_size=11)
+            hoverlabel=dict(
+                bgcolor='white',
+                font_size=12,
+                font_family='Arial'
+            )
         )
         
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
