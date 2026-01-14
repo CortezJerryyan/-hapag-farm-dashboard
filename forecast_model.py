@@ -52,8 +52,8 @@ class SensorForecaster:
         
         # Critical thresholds
         thresholds = {
-            'N': (40, 140), 'P': (20, 80), 'K': (40, 200),
-            'Soil_pH': (5.5, 7.5), 'Humidity': (40, 80), 'Temperature': (20, 35)
+            'N': (88.9, 177.8), 'P': (4.1, 8.1), 'K': (40.7, 103.7),
+            'Soil_pH': (6.0, 8.5), 'Humidity': (50, 95), 'Temperature': (20, 35)
         }
         
         alert = None

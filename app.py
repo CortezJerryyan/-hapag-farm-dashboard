@@ -20,17 +20,17 @@ GOOGLE_SHEET_ID = "1rtSbAKs5XvVjVoWYVFIbIIrYW_JF3wcqNFXDnZX1XYg"
 GOOGLE_SHEET_URL = f"https://docs.google.com/spreadsheets/d/{GOOGLE_SHEET_ID}/export?format=csv"
 
 SOIL_THRESHOLDS = {
-    "N": {"critical_low": 20, "optimal_min": 80, "optimal_max": 120, "critical_high": 200},
-    "P": {"critical_low": 10, "optimal_min": 20, "optimal_max": 40, "critical_high": 60},
-    "K": {"critical_low": 40, "optimal_min": 100, "optimal_max": 150, "critical_high": 200},
-    "pH": {"critical_low": 5.0, "optimal_min": 6.0, "optimal_max": 7.0, "critical_high": 8.5},
-    "humidity": {"critical_low": 30, "optimal_min": 50, "optimal_max": 70, "critical_high": 90}
+    "N": {"critical_low": 20, "optimal_min": 88.9, "optimal_max": 177.8, "critical_high": 240},
+    "P": {"critical_low": 2, "optimal_min": 4.1, "optimal_max": 8.1, "critical_high": 22},
+    "K": {"critical_low": 20, "optimal_min": 40.7, "optimal_max": 103.7, "critical_high": 280},
+    "pH": {"critical_low": 4.5, "optimal_min": 6.0, "optimal_max": 8.5, "critical_high": 9.0},
+    "humidity": {"critical_low": 30, "optimal_min": 50, "optimal_max": 95, "critical_high": 100}
 }
 
 DANGER_THRESHOLDS = {
-    "N": 15, "P": 8, "K": 30,
-    "pH_low": 4.5, "pH_high": 9.0,
-    "humidity_low": 25, "humidity_high": 95
+    "N": 88.9, "P": 4.1, "K": 40.7,
+    "pH_low": 6.0, "pH_high": 9.0,
+    "humidity_low": 50, "humidity_high": 95
 }
 
 # Original Filipino Crop Database
