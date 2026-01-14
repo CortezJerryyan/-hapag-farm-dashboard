@@ -422,45 +422,53 @@ def create_trend_chart(data):
                             '<extra></extra>'
             ))
         
-        # Update layout
+        # Update layout with mobile-friendly settings
         fig.update_layout(
             title={
                 'text': 'Soil Sensor Trends Over Time',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 18, 'color': '#1f2937'}
+                'font': {'size': 16, 'color': '#1f2937'}
             },
             xaxis={
-                'title': 'Date & Time',
+                'title': {'text': 'Date & Time', 'font': {'size': 11}},
                 'showgrid': True,
                 'gridcolor': '#e5e7eb',
-                'tickformat': '%m/%d %H:%M'
+                'tickformat': '%m/%d %H:%M',
+                'tickfont': {'size': 10}
             },
             yaxis={
-                'title': 'Nutrient Levels (ppm)',
+                'title': {'text': 'Nutrients (ppm)', 'font': {'size': 11}},
                 'showgrid': True,
                 'gridcolor': '#e5e7eb',
-                'side': 'left'
+                'side': 'left',
+                'tickfont': {'size': 10}
             },
             yaxis2={
-                'title': 'pH / Humidity (%)',
+                'title': {'text': 'pH/Humidity', 'font': {'size': 11}},
                 'overlaying': 'y',
                 'side': 'right',
-                'showgrid': False
+                'showgrid': False,
+                'tickfont': {'size': 10}
             },
             height=500,
-            margin=dict(l=60, r=60, t=60, b=60),
+            margin=dict(l=50, r=50, t=80, b=50),
             showlegend=True,
             legend=dict(
                 orientation='h',
                 yanchor='bottom',
                 y=1.02,
-                xanchor='right',
-                x=1
+                xanchor='center',
+                x=0.5,
+                font={'size': 10},
+                bgcolor='rgba(255,255,255,0.8)',
+                bordercolor='#e5e7eb',
+                borderwidth=1
             ),
             paper_bgcolor='white',
             plot_bgcolor='white',
-            hovermode='x unified'
+            hovermode='x unified',
+            hoverlabel=dict(font_size=11)
         )
         
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
