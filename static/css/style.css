@@ -43,7 +43,7 @@ body::before {
 
 /* Desktop Navigation with Glass */
 .mobile-nav {
-    background: var(--glass-bg) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
@@ -53,7 +53,20 @@ body::before {
 .navbar-brand {
     font-weight: 800;
     font-size: 1.5rem;
-    color: var(--primary-green) !important;
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link {
+    color: white !important;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--light-green) !important;
+    transform: translateY(-1px);
 }
 
 /* Mobile Bottom Navigation - Hidden by Default */
@@ -63,26 +76,36 @@ body::before {
 
 /* Glassmorphism Metric Cards */
 .metric-card {
-    background: var(--glass-bg);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 24px;
     padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
-    border: 1px solid var(--glass-border);
-    border-left: 4px solid var(--primary-green);
+    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-left: 5px solid var(--primary-green);
     transition: all 0.3s ease;
     height: 100%;
 }
 
 .metric-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.25);
+    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.35);
+    border-left-width: 6px;
 }
 
-.metric-card.metric-optimal { border-left-color: var(--success-green); }
-.metric-card.metric-warning { border-left-color: var(--warning-orange); }
-.metric-card.metric-critical { border-left-color: #EF4444; }
+.metric-card.metric-optimal { 
+    border-left-color: var(--success-green);
+    background: rgba(232, 245, 233, 0.9);
+}
+.metric-card.metric-warning { 
+    border-left-color: var(--warning-orange);
+    background: rgba(255, 243, 224, 0.9);
+}
+.metric-card.metric-critical { 
+    border-left-color: #EF4444;
+    background: rgba(254, 242, 242, 0.9);
+}
 
 .metric-card.metric-optimal { border-left-color: var(--success-green); }
 .metric-card.metric-warning { border-left-color: var(--warning-yellow); }
@@ -217,52 +240,63 @@ body::before {
     font-weight: 600;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 12px 32px;
+    border: none;
+    padding: 14px 36px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-green), var(--success-green));
-    border: none;
     color: white;
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.4);
 }
 
 .btn-success {
     background: linear-gradient(135deg, var(--success-green), var(--light-green));
-    border: none;
     color: white;
+    box-shadow: 0 4px 16px rgba(67, 160, 71, 0.4);
 }
 
 .btn-warning {
     background: linear-gradient(135deg, var(--warning-orange), var(--sunset-orange));
-    border: none;
     color: white;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #0288d1, #03a9f4);
+    color: white;
+    box-shadow: 0 4px 16px rgba(2, 136, 209, 0.4);
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(46, 125, 50, 0.5);
+}
+
+.btn:active {
+    transform: translateY(-1px);
 }
 
 /* Cards with Glass Effect */
 .card {
-    background: var(--glass-bg);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    border: 2px solid rgba(255, 255, 255, 0.5);
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
+    box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2);
     transition: all 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.25);
+    box-shadow: 0 12px 48px rgba(46, 125, 50, 0.35);
 }
 
 .card-header {
-    background: rgba(255, 255, 255, 0.5);
-    border-bottom: 1px solid var(--glass-border);
+    background: rgba(46, 125, 50, 0.15);
+    border-bottom: 2px solid rgba(46, 125, 50, 0.2);
     border-radius: 24px 24px 0 0 !important;
     backdrop-filter: blur(10px);
 }
@@ -270,6 +304,7 @@ body::before {
 .card-header h3, .card-header h5 {
     color: var(--primary-green);
     font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 /* Navigation */
