@@ -632,7 +632,8 @@ def analytics():
     # Fetch current sensor data for gauges (same as Dashboard)
     current_data, current_timestamp = fetch_latest_data()
     current_sensor = {
-        'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0
+        'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
+        'soil_moisture': 0, 'temperature': 0
     }
     if current_data:
         try:
@@ -641,7 +642,9 @@ def analytics():
                 'P': float(current_data.get('P', 0)),
                 'K': float(current_data.get('K', 0)),
                 'ph': float(current_data.get('ph', 0)),
-                'humidity': float(current_data.get('humidity', 0))
+                'humidity': float(current_data.get('humidity', 0)),
+                'soil_moisture': float(current_data.get('soil_moisture', 0)),
+                'temperature': float(current_data.get('temperature', 0))
             }
         except:
             pass

@@ -238,6 +238,14 @@
                         <h6 class="mt-2">Humidity</h6>
                     </div>
                     <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeSoilMoisture" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Soil Moisture</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeTemperature" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Temperature</h6>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
                         <canvas id="gaugeHealth" width="120" height="120"></canvas>
                         <h6 class="mt-2">Soil Health</h6>
                     </div>
@@ -417,6 +425,8 @@ if (currentSensor && currentSensor.N !== undefined) {
     drawGauge('gaugeK', currentSensor.K, 200, 'K');
     drawGauge('gaugePH', currentSensor.ph, 14, 'pH');
     drawGauge('gaugeHumidity', currentSensor.humidity, 100, 'Humidity');
+    drawGauge('gaugeSoilMoisture', currentSensor.soil_moisture, 100, 'Soil Moisture');
+    drawGauge('gaugeTemperature', currentSensor.temperature, 50, 'Temperature');
     
     // Calculate health score
     const health = ((currentSensor.N/200 + currentSensor.P/100 + currentSensor.K/200) / 3) * 100;
