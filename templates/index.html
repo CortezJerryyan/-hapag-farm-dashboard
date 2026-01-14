@@ -113,69 +113,51 @@
     </div>
 
     <!-- Weather - Google Style -->
-    <div class="col-12 mb-4">
-        <div class="card weather-card">
-            <div class="weather-header" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.3), rgba(255, 152, 0, 0.2)), url('/static/images/crops.jpg'); background-size: cover; background-position: center;">
-                <div class="weather-location">
+    <div class="col-lg-6 mb-4">
+        <div class="card weather-card h-100">
+            <div class="weather-header-compact" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.3), rgba(255, 152, 0, 0.2)), url('/static/images/crops.jpg'); background-size: cover; background-position: center;">
+                <div class="weather-location-compact">
                     <i class="fas fa-map-marker-alt me-2"></i>
                     <span id="weatherLocation">{{ weather.location }}</span>
                     <button class="btn btn-sm btn-light ms-2" onclick="detectLocation()" title="Detect my location">
                         <i class="fas fa-crosshairs"></i>
                     </button>
                 </div>
-                <div class="weather-current">
-                    <div class="weather-temp">{{ weather.temperature }}°</div>
-                    <div class="weather-desc">
-                        <span class="weather-icon">{{ weather.icon }}</span>
+                <div class="weather-current-compact">
+                    <div class="weather-temp-compact">{{ weather.temperature }}°</div>
+                    <div class="weather-desc-compact">
+                        <span class="weather-icon-compact">{{ weather.icon }}</span>
                         <span>{{ weather.description }}</span>
-                    </div>
-                </div>
-                <div class="weather-details">
-                    <div class="weather-detail-item">
-                        <i class="fas fa-tint"></i>
-                        <span>{{ weather.humidity }}%</span>
-                    </div>
-                    <div class="weather-detail-item">
-                        <i class="fas fa-wind"></i>
-                        <span>{{ weather.wind_speed }} km/h</span>
-                    </div>
-                    <div class="weather-detail-item">
-                        <i class="fas fa-cloud-rain"></i>
-                        <span>{{ weather.precipitation }} mm</span>
                     </div>
                 </div>
             </div>
             
-            <!-- Hourly Forecast -->
-            <div class="card-body">
-                <h6 class="mb-3"><i class="fas fa-clock me-2"></i>Hourly Forecast</h6>
-                <div class="hourly-forecast" id="hourlyForecast">
-                    {% for hour in weather.hourly %}
-                    <div class="hourly-item">
-                        <div class="hourly-time">{{ hour.time }}</div>
-                        <div class="hourly-icon">{{ hour.icon }}</div>
-                        <div class="hourly-temp">{{ hour.temp }}°</div>
-                        {% if hour.precipitation > 0 %}
-                        <div class="hourly-rain">{{ hour.precipitation }}mm</div>
-                        {% endif %}
+            <div class="card-body p-3">
+                <div class="weather-details-compact mb-3">
+                    <div class="weather-detail-item-compact">
+                        <i class="fas fa-tint"></i>
+                        <span>{{ weather.humidity }}%</span>
                     </div>
-                    {% endfor %}
+                    <div class="weather-detail-item-compact">
+                        <i class="fas fa-wind"></i>
+                        <span>{{ weather.wind_speed }} km/h</span>
+                    </div>
+                    <div class="weather-detail-item-compact">
+                        <i class="fas fa-cloud-rain"></i>
+                        <span>{{ weather.precipitation }} mm</span>
+                    </div>
                 </div>
                 
-                <!-- Daily Forecast -->
-                <h6 class="mb-3 mt-4"><i class="fas fa-calendar-week me-2"></i>7-Day Forecast</h6>
-                <div class="daily-forecast" id="dailyForecast">
+                <h6 class="mb-2" style="font-size: 0.85rem;"><i class="fas fa-calendar-week me-1"></i>7-Day Forecast</h6>
+                <div class="daily-forecast-compact" id="dailyForecast">
                     {% for day in weather.daily %}
-                    <div class="daily-item">
-                        <div class="daily-day">{{ day.day }}</div>
-                        <div class="daily-icon">{{ day.icon }}</div>
-                        <div class="daily-temps">
-                            <span class="daily-max">{{ day.max_temp }}°</span>
-                            <span class="daily-min">{{ day.min_temp }}°</span>
+                    <div class="daily-item-compact">
+                        <div class="daily-day-compact">{{ day.day[:3] }}</div>
+                        <div class="daily-icon-compact">{{ day.icon }}</div>
+                        <div class="daily-temps-compact">
+                            <span class="daily-max-compact">{{ day.max_temp }}°</span>
+                            <span class="daily-min-compact">{{ day.min_temp }}°</span>
                         </div>
-                        {% if day.precipitation > 0 %}
-                        <div class="daily-rain"><i class="fas fa-droplet"></i> {{ day.precipitation }}mm</div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -364,27 +346,15 @@ function detectLocation() {
 function updateWeatherUI(weather) {
     document.getElementById('weatherLocation').textContent = weather.location;
     
-    // Update hourly forecast
-    const hourlyHTML = weather.hourly.map(hour => `
-        <div class="hourly-item">
-            <div class="hourly-time">${hour.time}</div>
-            <div class="hourly-icon">${hour.icon}</div>
-            <div class="hourly-temp">${hour.temp}°</div>
-            ${hour.precipitation > 0 ? `<div class="hourly-rain">${hour.precipitation}mm</div>` : ''}
-        </div>
-    `).join('');
-    document.getElementById('hourlyForecast').innerHTML = hourlyHTML;
-    
     // Update daily forecast
     const dailyHTML = weather.daily.map(day => `
-        <div class="daily-item">
-            <div class="daily-day">${day.day}</div>
-            <div class="daily-icon">${day.icon}</div>
-            <div class="daily-temps">
-                <span class="daily-max">${day.max_temp}°</span>
-                <span class="daily-min">${day.min_temp}°</span>
+        <div class="daily-item-compact">
+            <div class="daily-day-compact">${day.day.substring(0, 3)}</div>
+            <div class="daily-icon-compact">${day.icon}</div>
+            <div class="daily-temps-compact">
+                <span class="daily-max-compact">${day.max_temp}°</span>
+                <span class="daily-min-compact">${day.min_temp}°</span>
             </div>
-            ${day.precipitation > 0 ? `<div class="daily-rain">${day.precipitation}mm</div>` : ''}
         </div>
     `).join('');
     document.getElementById('dailyForecast').innerHTML = dailyHTML;
