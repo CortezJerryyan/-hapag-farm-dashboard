@@ -506,24 +506,44 @@ body::before {
 /* Form Controls */
 .form-range {
     height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
 }
 
 .form-range::-webkit-slider-thumb {
     width: 24px;
     height: 24px;
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--success-green), var(--light-green));
     border-radius: 50%;
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(67, 160, 71, 0.6),
+                0 0 20px rgba(67, 160, 71, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(67, 160, 71, 0.8),
+                0 0 30px rgba(67, 160, 71, 0.6);
 }
 
 .form-range::-moz-range-thumb {
     width: 24px;
     height: 24px;
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--success-green), var(--light-green));
     border-radius: 50%;
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(67, 160, 71, 0.6),
+                0 0 20px rgba(67, 160, 71, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-range::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(67, 160, 71, 0.8),
+                0 0 30px rgba(67, 160, 71, 0.6);
 }
 
 /* Buttons with Glass Effect */
@@ -779,11 +799,15 @@ body::before {
     .form-range::-webkit-slider-thumb {
         width: 32px;
         height: 32px;
+        background: var(--success-green);
+        box-shadow: 0 0 10px rgba(67, 160, 71, 0.6);
     }
     
     .form-range::-moz-range-thumb {
         width: 32px;
         height: 32px;
+        background: var(--success-green);
+        box-shadow: 0 0 10px rgba(67, 160, 71, 0.6);
     }
 }
 
