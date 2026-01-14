@@ -1,31 +1,40 @@
-/* Mobile-First CSS for Hapag Farm Dashboard - Responsive Design */
+/* Glassmorphism Design for Hapag Farm Dashboard */
 
 :root {
-    --primary-blue: #2563EB;
-    --success-green: #10B981;
+    --primary-green: #2e7d32;
+    --success-green: #43a047;
     --warning-yellow: #F59E0B;
     --danger-red: #EF4444;
     --text-dark: #1F2937;
     --text-light: #6B7280;
-    --bg-light: #F8FAFC;
-    --border-light: #E5E7EB;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.3);
 }
 
-/* Global Styles - Desktop First */
+/* Global Styles with Background */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--bg-light);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
     line-height: 1.6;
 }
 
-/* Custom Bootstrap Overrides */
+/* Custom Bootstrap Overrides with Glass Effect */
 .bg-gradient-primary {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, #3B82F6 100%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
 }
 
-/* Desktop Navigation - Default */
+/* Desktop Navigation with Glass */
 .mobile-nav {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 /* Mobile Bottom Navigation - Hidden by Default */
@@ -33,20 +42,23 @@ body {
     display: none;
 }
 
-/* Metric Cards */
+/* Glassmorphism Metric Cards */
 .metric-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-left: 4px solid var(--border-light);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--primary-green);
     transition: all 0.3s ease;
     height: 100%;
 }
 
 .metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.15);
 }
 
 .metric-card.metric-optimal { border-left-color: var(--success-green); }
@@ -176,34 +188,48 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Buttons */
+/* Buttons with Glass Effect */
 .btn {
-    border-radius: 8px;
+    border-radius: 999px;
     font-weight: 600;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 32px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-green), var(--success-green));
+    border: none;
+    color: white;
 }
 
 .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
-/* Cards */
+/* Cards with Glass Effect */
 .card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.15);
 }
 
 .card-header {
-    background: var(--bg-light);
-    border-bottom: 1px solid var(--border-light);
-    border-radius: 12px 12px 0 0 !important;
+    background: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: 24px 24px 0 0 !important;
+    backdrop-filter: blur(10px);
 }
 
 /* Navigation */
@@ -259,19 +285,22 @@ body {
         padding-bottom: 80px;
     }
     
-    /* Show mobile bottom navigation */
+    /* Show mobile bottom navigation with glass */
     .mobile-bottom-nav {
         display: flex;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        background: white;
-        border-top: 1px solid var(--border-light);
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
         justify-content: space-around;
-        padding: 0.5rem 0;
+        padding: 0.75rem 0;
         z-index: 1030;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 -8px 32px rgba(0,0,0,0.1);
+        border-radius: 24px 24px 0 0;
     }
     
     .bottom-nav-item {
