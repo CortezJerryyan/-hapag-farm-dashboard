@@ -492,6 +492,10 @@ body::before {
     font-size: 0.875rem;
 }
 
+.alert-success small {
+    color: #1F2937 !important;
+}
+
 .danger-alert {
     animation: pulse 2s infinite;
     border: 2px solid var(--danger-red) !important;
