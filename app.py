@@ -528,11 +528,11 @@ def index():
     # Check if sensor is connected
     sensor_connected = data is not None
     
-    # Default values (only used when no sensor)
+    # Default values (only used when no data)
     sensor_data = {
         'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
         'timestamp': 'No data',
-        'connected': sensor_connected
+        'connected': False
     }
     
     if data:

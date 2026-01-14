@@ -231,21 +231,21 @@
             </div>
             <div class="card-body">
                 {% if danger_count >= 3 %}
-                    <div class="alert alert-danger danger-alert text-center">
-                        <h6 class="mb-2">🚨 YOUR SOIL IS IN DANGER! 🚨</h6>
-                        <small>Multiple critical parameters detected!</small>
+                    <div class="alert alert-danger danger-alert text-center" style="color: #000 !important;">
+                        <h6 class="mb-2" style="color: #000 !important;">🚨 YOUR SOIL IS IN DANGER! 🚨</h6>
+                        <small style="color: #000 !important;">Multiple critical parameters detected!</small>
                     </div>
                 {% endif %}
                 
                 {% if alerts %}
                     {% for alert in alerts %}
-                        <div class="alert alert-danger alert-sm mb-2">
-                            <small><i class="fas fa-exclamation-circle me-1"></i>{{ alert }}</small>
+                        <div class="alert alert-danger alert-sm mb-2" style="color: #000 !important;">
+                            <small style="color: #000 !important;"><i class="fas fa-exclamation-circle me-1"></i>{{ alert }}</small>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="alert alert-success alert-sm mb-0">
-                        <small><i class="fas fa-check-circle me-1"></i>All parameters normal</small>
+                    <div class="alert alert-success alert-sm mb-0" style="color: #000 !important;">
+                        <small style="color: #000 !important;"><i class="fas fa-check-circle me-1"></i>All parameters normal</small>
                     </div>
                 {% endif %}
             </div>
