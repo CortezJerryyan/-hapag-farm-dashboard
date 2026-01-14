@@ -331,15 +331,15 @@ def get_fertilizer_recommendation(n, p, k):
     return recommendations
 
 def create_trend_chart(data):
-    """Create separate charts for NPK, pH, and Humidity for mobile-friendly display"""
     if not data:
         return None
     
     try:
-        # Process Firebase data and filter out zeros
+        # Process Firebase data structure
         processed_data = []
         for key, values in data.items():
             if isinstance(values, dict):
+                # Extract timestamp and sensor values
                 timestamp = values.get('timestamp', values.get('date', key))
                 n_val = values.get('N', values.get('nitrogen', 0))
                 p_val = values.get('P', values.get('phosphorus', 0))
@@ -348,126 +348,124 @@ def create_trend_chart(data):
                 hum_val = values.get('humidity', values.get('moisture', 0))
                 
                 try:
-                    if any([n_val, p_val, k_val, ph_val, hum_val]):
-                        processed_data.append({
-                            'timestamp': pd.to_datetime(timestamp),
-                            'N': float(n_val) if n_val else None,
-                            'P': float(p_val) if p_val else None,
-                            'K': float(k_val) if k_val else None,
-                            'pH': float(ph_val) if ph_val else None,
-                            'humidity': float(hum_val) if hum_val else None
-                        })
+                    processed_data.append({
+                        'timestamp': pd.to_datetime(timestamp),
+                        'N': float(n_val) if n_val else 0,
+                        'P': float(p_val) if p_val else 0,
+                        'K': float(k_val) if k_val else 0,
+                        'pH': float(ph_val) if ph_val else 0,
+                        'humidity': float(hum_val) if hum_val else 0
+                    })
                 except:
                     continue
         
         if not processed_data:
             return None
         
-        df = pd.DataFrame(processed_data).sort_values('timestamp')
+        # Create DataFrame and sort by timestamp
+        df = pd.DataFrame(processed_data)
+        df = df.sort_values('timestamp')
         
-        # Create individual charts as JSON objects
-        charts = {}
+        # Create the plot
+        fig = go.Figure()
         
-        # NPK Chart
-        fig_npk = go.Figure()
-        if df['N'].notna().any():
-            fig_npk.add_trace(go.Scatter(
-                x=df['timestamp'], y=df['N'],
-                mode='lines+markers',
-                name='Nitrogen',
-                line=dict(color='#10b981', width=2),
-                marker=dict(size=4),
-                connectgaps=False
-            ))
-        if df['P'].notna().any():
-            fig_npk.add_trace(go.Scatter(
-                x=df['timestamp'], y=df['P'],
-                mode='lines+markers',
-                name='Phosphorus',
-                line=dict(color='#f59e0b', width=2),
-                marker=dict(size=4),
-                connectgaps=False
-            ))
-        if df['K'].notna().any():
-            fig_npk.add_trace(go.Scatter(
-                x=df['timestamp'], y=df['K'],
-                mode='lines+markers',
-                name='Potassium',
-                line=dict(color='#3b82f6', width=2),
-                marker=dict(size=4),
-                connectgaps=False
-            ))
+        # Add nutrient traces with cleaner styling
+        nutrients = [
+            ('N', '#10b981', 'Nitrogen'),
+            ('P', '#f59e0b', 'Phosphorus'),
+            ('K', '#3b82f6', 'Potassium')
+        ]
         
-        fig_npk.update_layout(
-            title=dict(text='N, P, K Nutrients', font=dict(color='#000', size=14)),
-            xaxis=dict(title='Date', showgrid=True, gridcolor='#f3f4f6', 
-                      title_font=dict(color='#000', size=11), tickfont=dict(color='#000', size=9)),
-            yaxis=dict(title='mg/kg', showgrid=True, gridcolor='#f3f4f6',
-                      title_font=dict(color='#000', size=11), tickfont=dict(color='#000', size=9)),
-            height=250,
-            margin=dict(l=45, r=25, t=40, b=35),
-            paper_bgcolor='white',
-            plot_bgcolor='white',
-            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(size=9, color='#000')),
-            hovermode='x unified'
-        )
-        charts['npk'] = json.dumps(fig_npk, cls=plotly.utils.PlotlyJSONEncoder)
+        for nutrient, color, label in nutrients:
+            if nutrient in df.columns and not df[nutrient].isna().all():
+                fig.add_trace(go.Scatter(
+                    x=df['timestamp'],
+                    y=df[nutrient],
+                    mode='lines',
+                    name=label,
+                    line=dict(color=color, width=2),
+                    hovertemplate=f'<b>{label}</b>: %{{y:.1f}}<extra></extra>'
+                ))
         
-        # pH Chart
-        fig_ph = go.Figure()
-        if df['pH'].notna().any():
-            fig_ph.add_trace(go.Scatter(
-                x=df['timestamp'], y=df['pH'],
-                mode='lines+markers',
-                name='pH Level',
+        # Add pH and humidity on secondary y-axis with dashed lines
+        if 'pH' in df.columns and not df['pH'].isna().all():
+            fig.add_trace(go.Scatter(
+                x=df['timestamp'],
+                y=df['pH'],
+                mode='lines',
+                name='pH',
                 line=dict(color='#ef4444', width=2, dash='dash'),
-                marker=dict(size=4),
-                connectgaps=False
+                yaxis='y2',
+                hovertemplate='<b>pH</b>: %{y:.1f}<extra></extra>'
             ))
         
-        fig_ph.update_layout(
-            title=dict(text='Soil pH', font=dict(color='#000', size=14)),
-            xaxis=dict(title='Date', showgrid=True, gridcolor='#f3f4f6',
-                      title_font=dict(color='#000', size=11), tickfont=dict(color='#000', size=9)),
-            yaxis=dict(title='pH Level', range=[0, 14], showgrid=True, gridcolor='#f3f4f6',
-                      title_font=dict(color='#000', size=11), tickfont=dict(color='#000', size=9)),
-            height=250,
-            margin=dict(l=45, r=25, t=40, b=35),
-            paper_bgcolor='white',
-            plot_bgcolor='white',
-            showlegend=False,
-            hovermode='x unified'
-        )
-        charts['ph'] = json.dumps(fig_ph, cls=plotly.utils.PlotlyJSONEncoder)
-        
-        # Humidity Chart
-        fig_hum = go.Figure()
-        if df['humidity'].notna().any():
-            fig_hum.add_trace(go.Scatter(
-                x=df['timestamp'], y=df['humidity'],
-                mode='lines+markers',
+        if 'humidity' in df.columns and not df['humidity'].isna().all():
+            fig.add_trace(go.Scatter(
+                x=df['timestamp'],
+                y=df['humidity'],
+                mode='lines',
                 name='Humidity',
-                line=dict(color='#06b6d4', width=2),
-                marker=dict(size=4),
-                connectgaps=False
+                line=dict(color='#8b5cf6', width=2, dash='dot'),
+                yaxis='y2',
+                hovertemplate='<b>Humidity</b>: %{y:.0f}%<extra></extra>'
             ))
         
-        fig_hum.update_layout(
-            title=dict(text='Humidity', font=dict(color='#000', size=14)),
-            xaxis=dict(title='Date', showgrid=True, gridcolor='#f3f4f6',
-                      title_font=dict(color='#000', size=11), tickfont=dict(color='#000', size=9)),
-            yaxis=dict(title='%', range=[0, 100], showgrid=True, gridcolor='#f3f4f6',
-                      title_font=dict(color='#000', size=11), tickfont=dict(color='#000', size=9)),
-            height=250,
-            margin=dict(l=45, r=25, t=40, b=35),
+        # Update layout - cleaner and more organized
+        fig.update_layout(
+            title={
+                'text': 'Sensor Trends',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 18, 'color': '#1f2937', 'family': 'Arial, sans-serif'}
+            },
+            xaxis={
+                'title': 'Date',
+                'showgrid': True,
+                'gridcolor': '#f3f4f6',
+                'tickformat': '%m/%d',
+                'tickfont': {'size': 11}
+            },
+            yaxis={
+                'title': 'NPK (ppm)',
+                'showgrid': True,
+                'gridcolor': '#f3f4f6',
+                'side': 'left',
+                'tickfont': {'size': 11},
+                'range': [0, 200]
+            },
+            yaxis2={
+                'title': 'pH / Humidity (%)',
+                'overlaying': 'y',
+                'side': 'right',
+                'showgrid': False,
+                'tickfont': {'size': 11},
+                'range': [0, 100]
+            },
+            height=450,
+            margin=dict(l=60, r=60, t=60, b=50),
+            showlegend=True,
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=-0.2,
+                xanchor='center',
+                x=0.5,
+                font={'size': 11},
+                bgcolor='rgba(255,255,255,0.9)',
+                bordercolor='#e5e7eb',
+                borderwidth=1
+            ),
             paper_bgcolor='white',
             plot_bgcolor='white',
-            showlegend=False,
-            hovermode='x unified'
+            hovermode='x unified',
+            hoverlabel=dict(
+                bgcolor='white',
+                font_size=12,
+                font_family='Arial'
+            )
         )
-        charts['humidity'] = json.dumps(fig_hum, cls=plotly.utils.PlotlyJSONEncoder)
         
-        return charts
+        return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     except Exception as e:
         print(f"Chart creation error: {e}")
         return None
@@ -520,59 +518,6 @@ def calculate_trend_analysis(data):
         return trends
     except:
         return {'N': 'stable', 'P': 'stable', 'K': 'stable'}
-
-def calculate_eda_data(data):
-    """Calculate EDA statistics: correlation matrix and box plot data"""
-    if not data:
-        return None
-    
-    try:
-        processed_data = []
-        for key, values in data.items():
-            if isinstance(values, dict):
-                n_val = values.get('N', values.get('nitrogen', 0))
-                p_val = values.get('P', values.get('phosphorus', 0))
-                k_val = values.get('K', values.get('potassium', 0))
-                ph_val = values.get('ph', values.get('pH', 0))
-                hum_val = values.get('humidity', values.get('moisture', 0))
-                
-                try:
-                    processed_data.append({
-                        'N': float(n_val) if n_val else 0,
-                        'P': float(p_val) if p_val else 0,
-                        'K': float(k_val) if k_val else 0,
-                        'Soil_pH': float(ph_val) if ph_val else 0,
-                        'Humidity': float(hum_val) if hum_val else 0
-                    })
-                except:
-                    continue
-        
-        if len(processed_data) < 2:
-            return None
-        
-        df = pd.DataFrame(processed_data)
-        
-        # Calculate correlation matrix
-        corr_matrix = df.corr()
-        
-        # Calculate box plot statistics (quartiles)
-        box_stats = {}
-        for col in df.columns:
-            box_stats[col] = {
-                'min': float(df[col].min()),
-                'q1': float(df[col].quantile(0.25)),
-                'median': float(df[col].median()),
-                'q3': float(df[col].quantile(0.75)),
-                'max': float(df[col].max())
-            }
-        
-        return {
-            'correlation': corr_matrix.to_dict(),
-            'box_stats': box_stats
-        }
-    except Exception as e:
-        print(f"EDA calculation error: {e}")
-        return None
 
 # Routes
 @app.route('/')
@@ -661,9 +606,8 @@ def index():
 @app.route('/analytics')
 def analytics():
     data = fetch_firebase_data()
-    chart_data = create_trend_chart(data)
+    chart_json = create_trend_chart(data)
     trends = calculate_trend_analysis(data)
-    eda_data = calculate_eda_data(data)
     
     # Calculate summary statistics
     summary_stats = {}
@@ -694,11 +638,10 @@ def analytics():
             pass
     
     return render_template('analytics.html', 
-                         chart_data=chart_data,
+                         chart_json=chart_json,
                          has_data=data is not None,
                          trends=trends,
-                         summary_stats=summary_stats,
-                         eda_data=eda_data)
+                         summary_stats=summary_stats)
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():

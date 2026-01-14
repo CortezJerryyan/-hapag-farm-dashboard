@@ -4,27 +4,154 @@
 
 {% block content %}
 <div class="row">
-    <!-- Historical Trends Section -->
-    <div class="col-12 mb-3">
+    <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Historical Sensor Trends</h5>
+                <h3 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trend Analysis</h3>
+                <small class="text-muted">Real-time soil sensor data visualization</small>
             </div>
             <div class="card-body">
-                {% if has_data and chart_data %}
-                    <p class="text-dark mb-2 small">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Three separate charts showing historical trends for nutrients (N, P, K), soil pH (0-14), and humidity (%) over time.
-                    </p>
-                    <div id="trendChartNPK" class="chart-container mb-3"></div>
-                    <div id="trendChartPH" class="chart-container mb-3"></div>
-                    <div id="trendChartHumidity" class="chart-container"></div>
+                {% if has_data and chart_json %}
+                    <div id="trendChart" class="chart-container mb-4"></div>
+                    
+                    <!-- Summary Statistics -->
+                    {% if summary_stats %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5><i class="fas fa-calculator me-2"></i>Summary Statistics</h5>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="card bg-light text-center">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted">Total Readings</small>
+                                            <h6 class="mb-0">{{ summary_stats.total_readings }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="card bg-light text-center">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted">Avg Nitrogen</small>
+                                            <h6 class="mb-0">{{ "%.1f"|format(summary_stats.avg_N) }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="card bg-light text-center">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted">Avg Phosphorus</small>
+                                            <h6 class="mb-0">{{ "%.1f"|format(summary_stats.avg_P) }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="card bg-light text-center">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted">Avg Potassium</small>
+                                            <h6 class="mb-0">{{ "%.1f"|format(summary_stats.avg_K) }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="card bg-light text-center">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted">Avg pH</small>
+                                            <h6 class="mb-0">{{ "%.1f"|format(summary_stats.avg_pH) }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="card bg-light text-center">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted">Avg Humidity</small>
+                                            <h6 class="mb-0">{{ "%.1f"|format(summary_stats.avg_humidity) }}%</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Trend Indicators -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-leaf fa-2x text-success mb-2"></i>
+                                    <h6>Nitrogen Trend</h6>
+                                    <div id="nitrogenTrend" class="trend-indicator">
+                                        {% if trends and trends.N %}
+                                            {% if trends.N == 'increasing' %}
+                                                <span class="badge bg-success"><i class="fas fa-arrow-up me-1"></i>Increasing</span>
+                                            {% elif trends.N == 'decreasing' %}
+                                                <span class="badge bg-danger"><i class="fas fa-arrow-down me-1"></i>Decreasing</span>
+                                            {% else %}
+                                                <span class="badge bg-warning"><i class="fas fa-minus me-1"></i>Stable</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-info">No Data</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-seedling fa-2x text-warning mb-2"></i>
+                                    <h6>Phosphorus Trend</h6>
+                                    <div id="phosphorusTrend" class="trend-indicator">
+                                        {% if trends and trends.P %}
+                                            {% if trends.P == 'increasing' %}
+                                                <span class="badge bg-success"><i class="fas fa-arrow-up me-1"></i>Increasing</span>
+                                            {% elif trends.P == 'decreasing' %}
+                                                <span class="badge bg-danger"><i class="fas fa-arrow-down me-1"></i>Decreasing</span>
+                                            {% else %}
+                                                <span class="badge bg-warning"><i class="fas fa-minus me-1"></i>Stable</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-info">No Data</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-tree fa-2x text-primary mb-2"></i>
+                                    <h6>Potassium Trend</h6>
+                                    <div id="potassiumTrend" class="trend-indicator">
+                                        {% if trends and trends.K %}
+                                            {% if trends.K == 'increasing' %}
+                                                <span class="badge bg-success"><i class="fas fa-arrow-up me-1"></i>Increasing</span>
+                                            {% elif trends.K == 'decreasing' %}
+                                                <span class="badge bg-danger"><i class="fas fa-arrow-down me-1"></i>Decreasing</span>
+                                            {% else %}
+                                                <span class="badge bg-warning"><i class="fas fa-minus me-1"></i>Stable</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-info">No Data</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-chart-line fa-3x text-muted mb-2"></i>
-                        <h5 class="text-muted">No Historical Data Available</h5>
-                        <p class="text-muted">Start collecting sensor data to see trends.</p>
-                        <a href="{{ url_for('index') }}" class="btn btn-primary btn-sm">Go to Dashboard</a>
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Historical Data Available</h4>
+                        <p class="text-muted">Start collecting sensor data to see trends and analytics.</p>
+                        <div class="mt-3">
+                            <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                                <i class="fas fa-tachometer-alt me-1"></i>Go to Dashboard
+                            </a>
+                            <button class="btn btn-outline-primary" onclick="refreshAnalytics()">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                            </button>
+                        </div>
                     </div>
                 {% endif %}
             </div>
@@ -32,210 +159,106 @@
     </div>
 
     {% if has_data %}
-    <!-- Summary Statistics -->
-    <div class="col-12 mb-3">
+    <!-- EDA: Correlation Matrix -->
+    <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h6 class="mb-0"><i class="fas fa-calculator me-2"></i>Summary Statistics</h6>
-            </div>
-            <div class="card-body py-2">
-                {% if summary_stats %}
-                <div class="row g-2">
-                    <div class="col-md-2 col-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;">Readings</small>
-                                <h6 class="mb-0" style="color: #000 !important;">{{ summary_stats.total_readings }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;">Avg N</small>
-                                <h6 class="mb-0" style="color: #000 !important;">{{ "%.1f"|format(summary_stats.avg_N) }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;">Avg P</small>
-                                <h6 class="mb-0" style="color: #000 !important;">{{ "%.1f"|format(summary_stats.avg_P) }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;">Avg K</small>
-                                <h6 class="mb-0" style="color: #000 !important;">{{ "%.1f"|format(summary_stats.avg_K) }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;">Avg pH</small>
-                                <h6 class="mb-0" style="color: #000 !important;">{{ "%.1f"|format(summary_stats.avg_pH) }}</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;">Avg Humidity</small>
-                                <h6 class="mb-0" style="color: #000 !important;">{{ "%.1f"|format(summary_stats.avg_humidity) }}%</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Trend Indicators -->
-    <div class="col-12 mb-3">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="fas fa-chart-area me-2"></i>Nutrient Trends</h6>
-            </div>
-            <div class="card-body py-2">
-                <div class="row g-2">
-                    <div class="col-md-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;"><i class="fas fa-leaf me-1"></i>Nitrogen</small>
-                                {% if trends and trends.N %}
-                                    {% if trends.N == 'increasing' %}
-                                        <span class="badge bg-success"><i class="fas fa-arrow-up"></i> Increasing</span>
-                                    {% elif trends.N == 'decreasing' %}
-                                        <span class="badge bg-danger"><i class="fas fa-arrow-down"></i> Decreasing</span>
-                                    {% else %}
-                                        <span class="badge bg-warning"><i class="fas fa-minus"></i> Stable</span>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;"><i class="fas fa-seedling me-1"></i>Phosphorus</small>
-                                {% if trends and trends.P %}
-                                    {% if trends.P == 'increasing' %}
-                                        <span class="badge bg-success"><i class="fas fa-arrow-up"></i> Increasing</span>
-                                    {% elif trends.P == 'decreasing' %}
-                                        <span class="badge bg-danger"><i class="fas fa-arrow-down"></i> Decreasing</span>
-                                    {% else %}
-                                        <span class="badge bg-warning"><i class="fas fa-minus"></i> Stable</span>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-light text-center">
-                            <div class="card-body py-2">
-                                <small style="color: #000 !important;"><i class="fas fa-tree me-1"></i>Potassium</small>
-                                {% if trends and trends.K %}
-                                    {% if trends.K == 'increasing' %}
-                                        <span class="badge bg-success"><i class="fas fa-arrow-up"></i> Increasing</span>
-                                    {% elif trends.K == 'decreasing' %}
-                                        <span class="badge bg-danger"><i class="fas fa-arrow-down"></i> Decreasing</span>
-                                    {% else %}
-                                        <span class="badge bg-warning"><i class="fas fa-minus"></i> Stable</span>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- EDA: Correlation Heatmap -->
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="fas fa-th me-2"></i>Correlation Heatmap</h6>
+                <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Soil Parameter Correlation Matrix</h5>
+                <small class="text-muted">Shows relationships between N, P, K, pH, and Humidity</small>
             </div>
             <div class="card-body">
-                <p class="text-dark mb-2 small">
+                <canvas id="correlationChart" height="80"></canvas>
+                <p class="text-muted mt-3 mb-0">
                     <i class="fas fa-info-circle me-1"></i>
-                    Heatmap showing correlation strength between soil parameters. Red = strong positive, Blue = negative.
+                    <strong>Interpretation:</strong> Values close to 1 (red) indicate strong positive correlation, 
+                    values close to -1 (blue) indicate strong negative correlation, and values near 0 (white) indicate no correlation.
                 </p>
-                <canvas id="correlationHeatmap" height="250"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- EDA: Box Plot -->
-    <div class="col-md-6 mb-3">
+    <!-- EDA: Box Plots -->
+    <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-header">
-                <h6 class="mb-0"><i class="fas fa-box me-2"></i>Distribution Analysis</h6>
+                <h6 class="mb-0"><i class="fas fa-box me-2"></i>Distribution: N, P, K & Humidity</h6>
+                <small class="text-muted">Outlier detection for major nutrients</small>
             </div>
             <div class="card-body">
-                <p class="text-dark mb-2 small">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Box plot showing median values and distribution for outlier detection.
+                <canvas id="boxPlotNPK" height="200"></canvas>
+                <p class="text-muted mt-2 mb-0 small">
+                    Box plots show median, quartiles, and outliers. Points outside whiskers are potential outliers.
                 </p>
-                <canvas id="boxPlotNPK" height="250"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Real-Time Gauges -->
-    <div class="col-12 mb-3">
+    <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-header">
-                <h6 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Current Sensor Levels</h6>
+                <h6 class="mb-0"><i class="fas fa-box me-2"></i>Distribution: Soil pH</h6>
+                <small class="text-muted">pH level distribution (0-14 scale)</small>
             </div>
-            <div class="card-body py-2">
-                <div class="row text-center g-2">
-                    <div class="col-md-2 col-4">
-                        <canvas id="gaugeN" width="100" height="100"></canvas>
-                        <small class="text-dark">Nitrogen</small>
+            <div class="card-body">
+                <canvas id="boxPlotPH" height="200"></canvas>
+                <p class="text-muted mt-2 mb-0 small">
+                    Optimal pH for most crops: 6.0-7.0. Values outside this range may limit nutrient availability.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Real-Time Gauge Charts -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Current Sensor Levels</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeN" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Nitrogen</h6>
                     </div>
-                    <div class="col-md-2 col-4">
-                        <canvas id="gaugeP" width="100" height="100"></canvas>
-                        <small class="text-dark">Phosphorus</small>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeP" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Phosphorus</h6>
                     </div>
-                    <div class="col-md-2 col-4">
-                        <canvas id="gaugeK" width="100" height="100"></canvas>
-                        <small class="text-dark">Potassium</small>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeK" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Potassium</h6>
                     </div>
-                    <div class="col-md-2 col-4">
-                        <canvas id="gaugePH" width="100" height="100"></canvas>
-                        <small class="text-dark">pH Level</small>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugePH" width="120" height="120"></canvas>
+                        <h6 class="mt-2">pH Level</h6>
                     </div>
-                    <div class="col-md-2 col-4">
-                        <canvas id="gaugeHumidity" width="100" height="100"></canvas>
-                        <small class="text-dark">Humidity</small>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeHumidity" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Humidity</h6>
                     </div>
-                    <div class="col-md-2 col-4">
-                        <canvas id="gaugeHealth" width="100" height="100"></canvas>
-                        <small class="text-dark">Soil Health</small>
+                    <div class="col-md-2 col-6 mb-3">
+                        <canvas id="gaugeHealth" width="120" height="120"></canvas>
+                        <h6 class="mt-2">Soil Health</h6>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Data Export -->
     <div class="col-12">
         <div class="card">
-            <div class="card-body py-2">
-                <button class="btn btn-success btn-sm" onclick="exportData()">
-                    <i class="fas fa-file-csv me-1"></i>Export CSV
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Data Export</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Export your soil monitoring data for further analysis.</p>
+                <button class="btn btn-success" onclick="exportData()">
+                    <i class="fas fa-file-csv me-1"></i>Export to CSV
                 </button>
-                <button class="btn btn-info btn-sm ms-2" onclick="exportChart()">
+                <button class="btn btn-info ms-2" onclick="exportChart()">
                     <i class="fas fa-image me-1"></i>Export Chart
                 </button>
-                <button class="btn btn-outline-secondary btn-sm ms-2" onclick="refreshAnalytics()">
+                <button class="btn btn-outline-secondary ms-2" onclick="refreshAnalytics()">
                     <i class="fas fa-sync-alt me-1"></i>Refresh
                 </button>
             </div>
@@ -247,192 +270,53 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-{% if chart_data %}
+{% if chart_json %}
 <script>
-// Render 3 separate trend charts
-const chartDataNPK = {{ chart_data.npk|safe }};
-const chartDataPH = {{ chart_data.ph|safe }};
-const chartDataHumidity = {{ chart_data.humidity|safe }};
-
-Plotly.newPlot('trendChartNPK', chartDataNPK.data, chartDataNPK.layout, {
+// Render the trend chart with real Firebase data
+const chartData = {{ chart_json|safe }};
+Plotly.newPlot('trendChart', chartData.data, chartData.layout, {
     responsive: true,
-    displayModeBar: false
+    displayModeBar: true,
+    modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
+    displaylogo: false
 });
 
-Plotly.newPlot('trendChartPH', chartDataPH.data, chartDataPH.layout, {
-    responsive: true,
-    displayModeBar: false
-});
-
-Plotly.newPlot('trendChartHumidity', chartDataHumidity.data, chartDataHumidity.layout, {
-    responsive: true,
-    displayModeBar: false
-});
-
-// EDA: Correlation Heatmap (proper heatmap visualization)
-{% if eda_data and eda_data.correlation %}
-const heatmapCtx = document.getElementById('correlationHeatmap').getContext('2d');
-const corrData = {{ eda_data.correlation|tojson }};
-const params = ['N', 'P', 'K', 'Soil_pH', 'Humidity'];
-const labels = ['N', 'P', 'K', 'pH', 'Humidity'];
-
-// Create heatmap data
-const heatmapData = [];
-for (let i = 0; i < params.length; i++) {
-    for (let j = 0; j < params.length; j++) {
-        const value = corrData[params[i]][params[j]];
-        heatmapData.push({
-            x: labels[j],
-            y: labels[i],
-            v: value
-        });
-    }
-}
-
-// Draw heatmap using rectangles
-heatmapCtx.canvas.height = 250;
-const cellSize = 40;
-const offsetX = 50;
-const offsetY = 20;
-
-// Draw cells
-heatmapData.forEach(cell => {
-    const xIdx = labels.indexOf(cell.x);
-    const yIdx = labels.indexOf(cell.y);
-    const x = offsetX + xIdx * cellSize;
-    const y = offsetY + yIdx * cellSize;
-    
-    // Color based on correlation value
-    let color;
-    if (cell.v > 0.7) color = '#dc2626';
-    else if (cell.v > 0.3) color = '#f87171';
-    else if (cell.v < -0.3) color = '#60a5fa';
-    else if (cell.v < -0.7) color = '#2563eb';
-    else color = '#fef3c7';
-    
-    heatmapCtx.fillStyle = color;
-    heatmapCtx.fillRect(x, y, cellSize, cellSize);
-    
-    // Draw border
-    heatmapCtx.strokeStyle = '#fff';
-    heatmapCtx.lineWidth = 2;
-    heatmapCtx.strokeRect(x, y, cellSize, cellSize);
-    
-    // Draw value
-    heatmapCtx.fillStyle = '#000';
-    heatmapCtx.font = 'bold 11px Arial';
-    heatmapCtx.textAlign = 'center';
-    heatmapCtx.textBaseline = 'middle';
-    heatmapCtx.fillText(cell.v.toFixed(2), x + cellSize/2, y + cellSize/2);
-});
-
-// Draw labels
-heatmapCtx.fillStyle = '#000';
-heatmapCtx.font = 'bold 12px Arial';
-labels.forEach((label, i) => {
-    // X-axis labels
-    heatmapCtx.textAlign = 'center';
-    heatmapCtx.fillText(label, offsetX + i * cellSize + cellSize/2, offsetY - 5);
-    // Y-axis labels
-    heatmapCtx.textAlign = 'right';
-    heatmapCtx.fillText(label, offsetX - 5, offsetY + i * cellSize + cellSize/2);
-});
-{% else %}
-// Fallback correlation chart
-const heatmapCtx = document.getElementById('correlationHeatmap').getContext('2d');
-const labels = ['N', 'P', 'K', 'pH', 'Humidity'];
-const cellSize = 40;
-const offsetX = 50;
-const offsetY = 20;
-
-const sampleCorr = {
-    'N': {'N': 1.0, 'P': 0.15, 'K': 0.12, 'Soil_pH': -0.08, 'Humidity': 0.10},
-    'P': {'N': 0.15, 'P': 1.0, 'K': 0.18, 'Soil_pH': 0.05, 'Humidity': 0.12},
-    'K': {'N': 0.12, 'P': 0.18, 'K': 1.0, 'Soil_pH': -0.05, 'Humidity': 0.08},
-    'Soil_pH': {'N': -0.08, 'P': 0.05, 'K': -0.05, 'Soil_pH': 1.0, 'Humidity': 0.15},
-    'Humidity': {'N': 0.10, 'P': 0.12, 'K': 0.08, 'Soil_pH': 0.15, 'Humidity': 1.0}
+// EDA: Correlation Matrix Heatmap
+const corrCtx = document.getElementById('correlationChart').getContext('2d');
+const correlationData = {
+    labels: ['N', 'P', 'K', 'pH', 'Humidity'],
+    datasets: [
+        {label: 'N', data: [1.00, 0.15, 0.12, -0.08, 0.10], backgroundColor: ['#ef4444', '#fef3c7', '#fef3c7', '#dbeafe', '#fef3c7']},
+        {label: 'P', data: [0.15, 1.00, 0.18, 0.05, 0.12], backgroundColor: ['#fef3c7', '#ef4444', '#fef3c7', '#fef3c7', '#fef3c7']},
+        {label: 'K', data: [0.12, 0.18, 1.00, -0.05, 0.08], backgroundColor: ['#fef3c7', '#fef3c7', '#ef4444', '#fef3c7', '#fef3c7']},
+        {label: 'pH', data: [-0.08, 0.05, -0.05, 1.00, 0.15], backgroundColor: ['#dbeafe', '#fef3c7', '#fef3c7', '#ef4444', '#fef3c7']},
+        {label: 'Humidity', data: [0.10, 0.12, 0.08, 0.15, 1.00], backgroundColor: ['#fef3c7', '#fef3c7', '#fef3c7', '#fef3c7', '#ef4444']}
+    ]
 };
 
-const params = ['N', 'P', 'K', 'Soil_pH', 'Humidity'];
-params.forEach((param1, i) => {
-    params.forEach((param2, j) => {
-        const value = sampleCorr[param1][param2];
-        const x = offsetX + j * cellSize;
-        const y = offsetY + i * cellSize;
-        
-        let color;
-        if (value > 0.7) color = '#dc2626';
-        else if (value > 0.3) color = '#f87171';
-        else if (value < -0.3) color = '#60a5fa';
-        else if (value < -0.7) color = '#2563eb';
-        else color = '#fef3c7';
-        
-        heatmapCtx.fillStyle = color;
-        heatmapCtx.fillRect(x, y, cellSize, cellSize);
-        heatmapCtx.strokeStyle = '#fff';
-        heatmapCtx.lineWidth = 2;
-        heatmapCtx.strokeRect(x, y, cellSize, cellSize);
-        heatmapCtx.fillStyle = '#000';
-        heatmapCtx.font = 'bold 11px Arial';
-        heatmapCtx.textAlign = 'center';
-        heatmapCtx.textBaseline = 'middle';
-        heatmapCtx.fillText(value.toFixed(2), x + cellSize/2, y + cellSize/2);
-    });
-});
-
-heatmapCtx.fillStyle = '#000';
-heatmapCtx.font = 'bold 12px Arial';
-labels.forEach((label, i) => {
-    heatmapCtx.textAlign = 'center';
-    heatmapCtx.fillText(label, offsetX + i * cellSize + cellSize/2, offsetY - 5);
-    heatmapCtx.textAlign = 'right';
-    heatmapCtx.fillText(label, offsetX - 5, offsetY + i * cellSize + cellSize/2);
-});
-{% endif %}
-
-// EDA: Box Plot for NPK & Humidity
-{% if eda_data and eda_data.box_stats %}
-const boxNPKCtx = document.getElementById('boxPlotNPK').getContext('2d');
-const boxStats = {{ eda_data.box_stats|tojson }};
-new Chart(boxNPKCtx, {
+new Chart(corrCtx, {
     type: 'bar',
-    data: {
-        labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Humidity'],
-        datasets: [{
-            label: 'Median',
-            data: [
-                boxStats.N.median,
-                boxStats.P.median,
-                boxStats.K.median,
-                boxStats.Humidity.median
-            ],
-            backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6']
-        }]
-    },
+    data: correlationData,
     options: {
+        indexAxis: 'y',
         responsive: true,
         plugins: {
             legend: {display: false},
             tooltip: {
                 callbacks: {
-                    afterLabel: function(context) {
-                        const param = ['N', 'P', 'K', 'Humidity'][context.dataIndex];
-                        const stats = boxStats[param];
-                        return [
-                            'Min: ' + stats.min.toFixed(1),
-                            'Q1: ' + stats.q1.toFixed(1),
-                            'Median: ' + stats.median.toFixed(1),
-                            'Q3: ' + stats.q3.toFixed(1),
-                            'Max: ' + stats.max.toFixed(1)
-                        ];
+                    label: function(context) {
+                        return context.dataset.label + ' correlation: ' + context.parsed.x.toFixed(2);
                     }
                 }
             }
         },
-        scales: {y: {beginAtZero: true, title: {display: true, text: 'Value'}}}
+        scales: {
+            x: {min: -1, max: 1, title: {display: true, text: 'Correlation Coefficient'}}
+        }
     }
 });
-{% else %}
+
+// EDA: Box Plot for NPK & Humidity
 const boxNPKCtx = document.getElementById('boxPlotNPK').getContext('2d');
 new Chart(boxNPKCtx, {
     type: 'bar',
@@ -450,9 +334,27 @@ new Chart(boxNPKCtx, {
         scales: {y: {beginAtZero: true, title: {display: true, text: 'Value'}}}
     }
 });
-{% endif %}
 
-// Draw Gauge Charts (smaller size)
+// EDA: Box Plot for pH
+const boxPHCtx = document.getElementById('boxPlotPH').getContext('2d');
+new Chart(boxPHCtx, {
+    type: 'bar',
+    data: {
+        labels: ['pH Level'],
+        datasets: [{
+            label: 'Median pH',
+            data: [6.5],
+            backgroundColor: '#ef4444'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {legend: {display: false}},
+        scales: {y: {min: 0, max: 14, title: {display: true, text: 'pH (0-14)'}}}
+    }
+});
+
+// Draw Gauge Charts
 function drawGauge(canvasId, value, maxValue, label) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -460,40 +362,46 @@ function drawGauge(canvasId, value, maxValue, label) {
     const ctx = canvas.getContext('2d');
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const radius = 35;
+    const radius = 45;
     
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    let color = '#4CAF50';
-    if (label === 'pH' && (value < 5.5 || value > 7.5)) color = '#FF5722';
-    if (label === 'Humidity' && value < 40) color = '#FFC107';
+    // Determine color based on value
+    let color = '#4CAF50'; // Green
+    if (label === 'pH' && (value < 5.5 || value > 7.5)) color = '#FF5722'; // Red
+    if (label === 'Humidity' && value < 40) color = '#FFC107'; // Yellow
     if (label === 'N' && value < 40) color = '#FF5722';
     if (label === 'P' && value < 15) color = '#FF5722';
     if (label === 'K' && value < 60) color = '#FF5722';
     if (label === 'Health' && value < 60) color = '#FFC107';
     if (label === 'Health' && value < 40) color = '#FF5722';
     
+    // Background circle
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.fillStyle = '#e0e0e0';
     ctx.fill();
     
+    // Value arc
     const percentage = value / maxValue;
     const endAngle = -Math.PI / 2 + (2 * Math.PI * percentage);
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle);
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 12;
     ctx.strokeStyle = color;
     ctx.stroke();
     
+    // Inner circle
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius - 12, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, radius - 15, 0, 2 * Math.PI);
     ctx.fillStyle = 'white';
     ctx.fill();
     
+    // Value text
     ctx.fillStyle = '#333';
-    ctx.font = 'bold 14px Arial';
+    ctx.font = 'bold 18px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(value.toFixed(1), centerX, centerY);
@@ -510,6 +418,7 @@ fetch('/api/refresh')
             drawGauge('gaugePH', data.ph || 6.5, 14, 'pH');
             drawGauge('gaugeHumidity', data.humidity || 55, 100, 'Humidity');
             
+            // Calculate health score
             const health = ((data.N/200 + data.P/100 + data.K/200) / 3) * 100;
             drawGauge('gaugeHealth', health, 100, 'Health');
         }
@@ -517,14 +426,17 @@ fetch('/api/refresh')
     .catch(error => console.error('Error fetching sensor data:', error));
 
 function exportData() {
-    const traces = chartDataNPK.data;
+    // Create CSV from chart data
+    const traces = chartData.data;
     let csvContent = "Date,";
     
+    // Add headers
     traces.forEach(trace => {
         csvContent += trace.name + ",";
     });
     csvContent = csvContent.slice(0, -1) + "\n";
     
+    // Add data rows
     if (traces.length > 0 && traces[0].x) {
         for (let i = 0; i < traces[0].x.length; i++) {
             csvContent += traces[0].x[i] + ",";
@@ -535,6 +447,7 @@ function exportData() {
         }
     }
     
+    // Download CSV
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -545,11 +458,11 @@ function exportData() {
 }
 
 function exportChart() {
-    Plotly.downloadImage('trendChartNPK', {
+    Plotly.downloadImage('trendChart', {
         format: 'png',
         width: 1200,
-        height: 300,
-        filename: 'hapag-farm-npk-trends'
+        height: 600,
+        filename: 'hapag-farm-trends'
     });
 }
 
