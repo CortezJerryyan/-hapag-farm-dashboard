@@ -384,7 +384,7 @@ function updateWeatherUI(weather) {
                 <span class="daily-max">${day.max_temp}°</span>
                 <span class="daily-min">${day.min_temp}°</span>
             </div>
-            ${day.precipitation > 0 ? `<div class="daily-rain"><i class="fas fa-droplet"></i> ${day.precipitation}mm</div>` : ''}
+            ${day.precipitation > 0 ? `<div class="daily-rain">${day.precipitation}mm</div>` : ''}
         </div>
     `).join('');
     document.getElementById('dailyForecast').innerHTML = dailyHTML;
