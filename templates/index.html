@@ -34,6 +34,7 @@
 
     <!-- Soil Parameters -->
     <div class="col-12 mb-4">
+        {% if sensor_data.connected %}
         <h3 class="mb-3"><i class="fas fa-flask me-2"></i>Soil Parameters</h3>
         <div class="row">
             <div class="col-md-6 col-lg-2 mb-3">
@@ -87,6 +88,24 @@
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="card bg-danger text-white text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-exclamation-triangle fa-4x mb-3"></i>
+                <h2 class="mb-3">⚠️ NO SENSOR DETECTED ⚠️</h2>
+                <p class="fs-5 mb-3">Unable to connect to Firebase or no sensor data available</p>
+                <p class="mb-3">Please check:</p>
+                <ul class="list-unstyled">
+                    <li>✓ Sensor is powered on</li>
+                    <li>✓ Firebase connection is active</li>
+                    <li>✓ Sensor is sending data</li>
+                </ul>
+                <button class="btn btn-light btn-lg mt-3" onclick="refreshData()">
+                    <i class="fas fa-sync-alt me-2"></i>Retry Connection
+                </button>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Soil Health & Weather -->

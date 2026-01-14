@@ -525,25 +525,29 @@ def index():
     # Fetch real-time data
     data, timestamp = fetch_latest_data()
     
-    # Default values
+    # Check if sensor is connected
+    sensor_connected = data is not None
+    
+    # Default values (only used when no sensor)
     sensor_data = {
-        'N': 40, 'P': 20, 'K': 60, 'ph': 6.5, 'humidity': 55,
-        'timestamp': timestamp or datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'connected': False
+        'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
+        'timestamp': 'No data',
+        'connected': sensor_connected
     }
     
     if data:
         try:
             sensor_data.update({
-                'N': float(data.get('N', 40)),
-                'P': float(data.get('P', 20)),
-                'K': float(data.get('K', 60)),
-                'ph': float(data.get('ph', 6.5)),
-                'humidity': float(data.get('humidity', 55)),
+                'N': float(data.get('N', 0)),
+                'P': float(data.get('P', 0)),
+                'K': float(data.get('K', 0)),
+                'ph': float(data.get('ph', 0)),
+                'humidity': float(data.get('humidity', 0)),
+                'timestamp': timestamp or 'Unknown',
                 'connected': True
             })
         except:
-            pass
+            sensor_data['connected'] = False
     
     # Calculate metrics
     health_score = calculate_soil_health_score(
@@ -606,12 +610,16 @@ def index():
 @app.route('/analytics')
 def analytics():
     data = fetch_firebase_data()
-    chart_json = create_trend_chart(data)
-    trends = calculate_trend_analysis(data)
+    
+    # Check if we have any data
+    has_data = data is not None and len(data) > 0
+    
+    chart_json = create_trend_chart(data) if has_data else None
+    trends = calculate_trend_analysis(data) if has_data else {}
     
     # Calculate summary statistics
     summary_stats = {}
-    if data:
+    if has_data:
         try:
             values = []
             for key, entry in data.items():
