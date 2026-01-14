@@ -174,7 +174,7 @@ def fetch_latest_data():
                 'K': float(last_row.get('K (ppm)', last_row.get('K', 0))),
                 'ph': float(last_row.get('pH', last_row.get('ph', 0))),
                 'humidity': float(last_row.get('Humidity', last_row.get('humidity', 0))),
-                'soil_moisture': float(last_row.get('EC', 0)),  # EC as soil conductivity
+                'ec': float(last_row.get('EC', 0)),  # Electrical Conductivity
                 'temperature': float(last_row.get('Temp', last_row.get('Temperature', 0))),
                 'timestamp': str(last_row.get('Timestamp', last_row.get('timestamp', 'Unknown')))
             }
@@ -209,6 +209,27 @@ def fetch_latest_data():
     return None, None
 
 def fetch_firebase_data():
+    # Try Google Sheets first for historical data
+    try:
+        df = pd.read_csv(GOOGLE_SHEET_URL)
+        if not df.empty:
+            # Convert to Firebase-like format
+            data = {}
+            for idx, row in df.iterrows():
+                timestamp = str(row.get('Timestamp', f'entry_{idx}'))
+                data[timestamp] = {
+                    'N': float(row.get('N (ppm)', 0)),
+                    'P': float(row.get('P (ppm)', 0)),
+                    'K': float(row.get('K (ppm)', 0)),
+                    'ph': float(row.get('pH', 0)),
+                    'humidity': float(row.get('Humidity', 0)),
+                    'timestamp': timestamp
+                }
+            return data
+    except Exception as e:
+        print(f"Google Sheets error: {e}")
+    
+    # Fallback to Firebase
     try:
         response = requests.get(f"{FIREBASE_URL}{FIREBASE_NODE}", timeout=10)
         if response.status_code == 200:
@@ -563,7 +584,7 @@ def index():
     # Default values (only used when no data)
     sensor_data = {
         'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
-        'soil_moisture': 0, 'temperature': 0,
+        'ec': 0, 'temperature': 0,
         'timestamp': 'No data',
         'connected': False
     }
@@ -576,7 +597,7 @@ def index():
                 'K': float(data.get('K', 0)),
                 'ph': float(data.get('ph', 0)),
                 'humidity': float(data.get('humidity', 0)),
-                'soil_moisture': float(data.get('soil_moisture', 0)),
+                'ec': float(data.get('ec', 0)),
                 'temperature': float(data.get('temperature', 0)),
                 'timestamp': timestamp or 'Unknown',
                 'connected': True
@@ -656,7 +677,7 @@ def analytics():
     current_data, current_timestamp = fetch_latest_data()
     current_sensor = {
         'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
-        'soil_moisture': 0, 'temperature': 0
+        'ec': 0, 'temperature': 0
     }
     if current_data:
         try:
@@ -666,7 +687,7 @@ def analytics():
                 'K': float(current_data.get('K', 0)),
                 'ph': float(current_data.get('ph', 0)),
                 'humidity': float(current_data.get('humidity', 0)),
-                'soil_moisture': float(current_data.get('soil_moisture', 0)),
+                'ec': float(current_data.get('ec', 0)),
                 'temperature': float(current_data.get('temperature', 0))
             }
         except:
