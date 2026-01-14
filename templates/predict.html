@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Soil Prediction - Hapag Farm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Soil Simulator</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="predictionForm">
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Nutrient Levels</h6>
+                        
+                        <div class="mb-3">
+                            <label for="nitrogen" class="form-label">
+                                <i class="fas fa-leaf text-success me-1"></i>Nitrogen (N)
+                                <span class="badge bg-light text-dark ms-2" id="nitrogenValue">
+                                    {{ form_data.nitrogen if form_data else 40 }}
+                                </span>
+                            </label>
+                            <input type="range" class="form-range" id="nitrogen" name="nitrogen" 
+                                   min="0" max="200" value="{{ form_data.nitrogen if form_data else 40 }}"
+                                   oninput="updateValue('nitrogen', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">0</small>
+                                <small class="text-muted">200 mg/kg</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phosphorus" class="form-label">
+                                <i class="fas fa-seedling text-warning me-1"></i>Phosphorus (P)
+                                <span class="badge bg-light text-dark ms-2" id="phosphorusValue">
+                                    {{ form_data.phosphorus if form_data else 20 }}
+                                </span>
+                            </label>
+                            <input type="range" class="form-range" id="phosphorus" name="phosphorus" 
+                                   min="0" max="100" value="{{ form_data.phosphorus if form_data else 20 }}"
+                                   oninput="updateValue('phosphorus', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">0</small>
+                                <small class="text-muted">100 mg/kg</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="potassium" class="form-label">
+                                <i class="fas fa-tree text-primary me-1"></i>Potassium (K)
+                                <span class="badge bg-light text-dark ms-2" id="potassiumValue">
+                                    {{ form_data.potassium if form_data else 60 }}
+                                </span>
+                            </label>
+                            <input type="range" class="form-range" id="potassium" name="potassium" 
+                                   min="0" max="200" value="{{ form_data.potassium if form_data else 60 }}"
+                                   oninput="updateValue('potassium', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">0</small>
+                                <small class="text-muted">200 mg/kg</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Environmental Factors</h6>
+                        
+                        <div class="mb-3">
+                            <label for="ph" class="form-label">
+                                <i class="fas fa-balance-scale text-info me-1"></i>pH Level
+                                <span class="badge bg-light text-dark ms-2" id="phValue">
+                                    {{ form_data.ph if form_data else 6.5 }}
+                                </span>
+                            </label>
+                            <input type="range" class="form-range" id="ph" name="ph" 
+                                   min="0" max="14" step="0.1" value="{{ form_data.ph if form_data else 6.5 }}"
+                                   oninput="updateValue('ph', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">0 (Acidic)</small>
+                                <small class="text-muted">14 (Alkaline)</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="humidity" class="form-label">
+                                <i class="fas fa-tint text-primary me-1"></i>Humidity
+                                <span class="badge bg-light text-dark ms-2" id="humidityValue">
+                                    {{ form_data.humidity if form_data else 50 }}
+                                </span>
+                            </label>
+                            <input type="range" class="form-range" id="humidity" name="humidity" 
+                                   min="0" max="100" value="{{ form_data.humidity if form_data else 50 }}"
+                                   oninput="updateValue('humidity', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">0%</small>
+                                <small class="text-muted">100%</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-brain me-1"></i>Analyze Soil Conditions
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Analysis Results</h5>
+            </div>
+            <div class="card-body">
+                {% if prediction_name %}
+                    <!-- Crop Recommendation -->
+                    <div class="text-center mb-4">
+                        <div class="crop-result">
+                            <i class="fas fa-seedling fa-3x text-success mb-3"></i>
+                            <h3 class="text-success mb-2">{{ prediction_name }}</h3>
+                            {% if confidence > 0 %}
+                                <div class="mb-3">
+                                    <small class="text-muted">AI Confidence: {{ confidence|round }}%</small>
+                                    <div class="progress mx-auto" style="width: 200px;">
+                                        {% if confidence >= 80 %}
+                                            <div class="progress-bar bg-success" style="width: {{ confidence }}%"></div>
+                                        {% elif confidence >= 60 %}
+                                            <div class="progress-bar bg-warning" style="width: {{ confidence }}%"></div>
+                                        {% else %}
+                                            <div class="progress-bar bg-danger" style="width: {{ confidence }}%"></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Parameter Status -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="parameter-status">
+                                <strong>pH Status:</strong>
+                                {% if ph_status == 'critical' %}
+                                    <span class="badge bg-danger ms-1">{{ ph_msg }}</span>
+                                {% elif ph_status == 'warning' %}
+                                    <span class="badge bg-warning ms-1">{{ ph_msg }}</span>
+                                {% else %}
+                                    <span class="badge bg-success ms-1">{{ ph_msg }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="parameter-status">
+                                <strong>Humidity Status:</strong>
+                                {% if hum_status == 'critical' %}
+                                    <span class="badge bg-danger ms-1">{{ hum_msg }}</span>
+                                {% elif hum_status == 'warning' %}
+                                    <span class="badge bg-warning ms-1">{{ hum_msg }}</span>
+                                {% else %}
+                                    <span class="badge bg-success ms-1">{{ hum_msg }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fertilizer Recommendations -->
+                    {% if fertilizer_recs %}
+                        <div class="fertilizer-section">
+                            <h6 class="mb-3"><i class="fas fa-flask me-1"></i>Fertilizer Plan</h6>
+                            {% for rec in fertilizer_recs %}
+                                <div class="alert alert-info alert-sm mb-2">
+                                    <small><i class="fas fa-check-circle me-1"></i>{{ rec }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                {% elif error %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h5 class="text-warning">Analysis Error</h5>
+                        <p class="text-muted">{{ error }}</p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-brain fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Ready for Analysis</h5>
+                        <p class="text-muted">Adjust the soil parameters and click "Analyze" to get crop recommendations.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-magic me-2"></i>Quick Presets</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Try these common soil conditions:</p>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-outline-success w-100" onclick="setPreset('optimal')">
+                            <i class="fas fa-star me-1"></i>Optimal Soil
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-outline-warning w-100" onclick="setPreset('acidic')">
+                            <i class="fas fa-tint me-1"></i>Acidic Soil
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-outline-info w-100" onclick="setPreset('alkaline')">
+                            <i class="fas fa-leaf me-1"></i>Alkaline Soil
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-outline-danger w-100" onclick="setPreset('poor')">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Poor Soil
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateValue(param, value) {
+    document.getElementById(param + 'Value').textContent = value;
+}
+
+function setPreset(type) {
+    const presets = {
+        optimal: {nitrogen: 100, phosphorus: 30, potassium: 125, ph: 6.5, humidity: 60},
+        acidic: {nitrogen: 60, phosphorus: 25, potassium: 80, ph: 5.0, humidity: 70},
+        alkaline: {nitrogen: 80, phosphorus: 35, potassium: 110, ph: 8.0, humidity: 55},
+        poor: {nitrogen: 15, phosphorus: 8, potassium: 30, ph: 4.5, humidity: 25}
+    };
+    
+    const preset = presets[type];
+    if (preset) {
+        Object.keys(preset).forEach(param => {
+            const input = document.getElementById(param);
+            const value = preset[param];
+            input.value = value;
+            updateValue(param, value);
+        });
+    }
+}
+
+// Initialize values on page load
+document.addEventListener('DOMContentLoaded', function() {
+    ['nitrogen', 'phosphorus', 'potassium', 'ph', 'humidity'].forEach(param => {
+        const input = document.getElementById(param);
+        updateValue(param, input.value);
+    });
+});
+</script>
+{% endblock %}

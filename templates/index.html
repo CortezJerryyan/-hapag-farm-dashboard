@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Hapag Farm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Header -->
+    <div class="col-12 mb-4">
+        <div class="card bg-gradient-primary text-white">
+            <div class="card-body text-center py-4">
+                <h1 class="card-title mb-2">
+                    <i class="fas fa-seedling me-2"></i>Hapag Farm Dashboard
+                </h1>
+                <p class="card-text">Real-time Soil Monitoring & Crop Recommendation System</p>
+                <div class="d-flex justify-content-center align-items-center mt-3">
+                    {% if sensor_data.connected %}
+                        <span class="badge bg-success me-2">
+                            <i class="fas fa-wifi me-1"></i>Connected
+                        </span>
+                        <small>{{ sensor_data.timestamp }}</small>
+                    {% else %}
+                        <span class="badge bg-danger me-2">
+                            <i class="fas fa-wifi me-1"></i>Offline
+                        </span>
+                        <small>{{ sensor_data.timestamp }}</small>
+                    {% endif %}
+                    <button class="btn btn-light btn-sm ms-3" onclick="refreshData()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soil Parameters -->
+    <div class="col-12 mb-4">
+        <h3 class="mb-3"><i class="fas fa-flask me-2"></i>Soil Parameters</h3>
+        <div class="row">
+            <div class="col-md-6 col-lg-2 mb-3">
+                <div class="metric-card" data-param="N" data-value="{{ sensor_data.N }}">
+                    <div class="metric-label">Nitrogen</div>
+                    <div class="metric-value">{{ sensor_data.N }} <span class="metric-unit">mg/kg</span></div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: {{ (sensor_data.N / 200 * 100)|round }}%"></div>
+                    </div>
+                    <div class="metric-status mt-2"></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-2 mb-3">
+                <div class="metric-card" data-param="P" data-value="{{ sensor_data.P }}">
+                    <div class="metric-label">Phosphorus</div>
+                    <div class="metric-value">{{ sensor_data.P }} <span class="metric-unit">mg/kg</span></div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: {{ (sensor_data.P / 60 * 100)|round }}%"></div>
+                    </div>
+                    <div class="metric-status mt-2"></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-2 mb-3">
+                <div class="metric-card" data-param="K" data-value="{{ sensor_data.K }}">
+                    <div class="metric-label">Potassium</div>
+                    <div class="metric-value">{{ sensor_data.K }} <span class="metric-unit">mg/kg</span></div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: {{ (sensor_data.K / 200 * 100)|round }}%"></div>
+                    </div>
+                    <div class="metric-status mt-2"></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <div class="metric-card" data-param="pH" data-value="{{ sensor_data.ph }}">
+                    <div class="metric-label">pH Level</div>
+                    <div class="metric-value">{{ sensor_data.ph }}</div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: {{ (sensor_data.ph / 14 * 100)|round }}%"></div>
+                    </div>
+                    <div class="metric-status mt-2"></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <div class="metric-card" data-param="humidity" data-value="{{ sensor_data.humidity }}">
+                    <div class="metric-label">Humidity</div>
+                    <div class="metric-value">{{ sensor_data.humidity }} <span class="metric-unit">%</span></div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: {{ sensor_data.humidity }}%"></div>
+                    </div>
+                    <div class="metric-status mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soil Health & Weather -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-heart me-2"></i>Soil Health Analysis</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="health-score mb-3">
+                    <div class="health-circle mx-auto mb-3" data-score="{{ health_score|round }}">
+                        <span class="health-value">{{ health_score|round }}/100</span>
+                    </div>
+                    {% if health_score >= 80 %}
+                        <div class="badge bg-success fs-6">🟢 Excellent Condition</div>
+                    {% elif health_score >= 60 %}
+                        <div class="badge bg-warning fs-6">🟡 Good Condition</div>
+                    {% else %}
+                        <div class="badge bg-danger fs-6">🔴 Poor Condition</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cloud-sun me-2"></i>Weather Conditions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="weather-metric">
+                            <i class="fas fa-thermometer-half fa-2x text-danger mb-2"></i>
+                            <div class="fw-bold">{{ weather.temperature }}°C</div>
+                            <small class="text-muted">Temperature</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="weather-metric">
+                            <i class="fas fa-tint fa-2x text-primary mb-2"></i>
+                            <div class="fw-bold">{{ weather.humidity }}%</div>
+                            <small class="text-muted">Humidity</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="weather-metric">
+                            <i class="fas fa-cloud-rain fa-2x text-info mb-2"></i>
+                            <div class="fw-bold">{{ weather.rainfall }} mm</div>
+                            <small class="text-muted">Rainfall</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted">{{ weather.forecast }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Recommendation -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-seedling me-2"></i>AI Crop Recommendation</h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="crop-recommendation">
+                            <h3 class="text-success mb-2">{{ prediction_name }}</h3>
+                            {% if confidence > 0 %}
+                                <div class="mb-2">
+                                    <small class="text-muted">AI Confidence: {{ confidence|round }}%</small>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: {{ confidence }}%"></div>
+                                    </div>
+                                </div>
+                                <p class="text-muted mb-0">Based on machine learning analysis</p>
+                            {% else %}
+                                <p class="text-muted mb-0">Based on expert system analysis</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fertilizer-recommendations">
+                            <h6 class="mb-2"><i class="fas fa-flask me-1"></i>Fertilizer Plan</h6>
+                            {% for rec in fertilizer_recs %}
+                                <div class="fertilizer-item mb-1">
+                                    <small>• {{ rec }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>System Alerts</h5>
+            </div>
+            <div class="card-body">
+                {% if danger_count >= 3 %}
+                    <div class="alert alert-danger danger-alert text-center">
+                        <h6 class="mb-2">🚨 YOUR SOIL IS IN DANGER! 🚨</h6>
+                        <small>Multiple critical parameters detected!</small>
+                    </div>
+                {% endif %}
+                
+                {% if alerts %}
+                    {% for alert in alerts %}
+                        <div class="alert alert-danger alert-sm mb-2">
+                            <small><i class="fas fa-exclamation-circle me-1"></i>{{ alert }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-success alert-sm mb-0">
+                        <small><i class="fas fa-check-circle me-1"></i>All parameters normal</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize metric cards
+document.addEventListener('DOMContentLoaded', function() {
+    updateMetricCards();
+});
+
+function updateMetricCards() {
+    const thresholds = {
+        'N': {critical_low: 20, optimal_min: 80, optimal_max: 120, critical_high: 200},
+        'P': {critical_low: 10, optimal_min: 20, optimal_max: 40, critical_high: 60},
+        'K': {critical_low: 40, optimal_min: 100, optimal_max: 150, critical_high: 200},
+        'pH': {critical_low: 5.0, optimal_min: 6.0, optimal_max: 7.0, critical_high: 8.5},
+        'humidity': {critical_low: 30, optimal_min: 50, optimal_max: 70, critical_high: 90}
+    };
+
+    document.querySelectorAll('.metric-card').forEach(card => {
+        const param = card.dataset.param;
+        const value = parseFloat(card.dataset.value);
+        const threshold = thresholds[param];
+        
+        let status = 'optimal';
+        let message = 'Optimal';
+        let colorClass = 'bg-success';
+        
+        if (value < threshold.critical_low) {
+            status = 'critical';
+            message = 'Critical: Too Low';
+            colorClass = 'bg-danger';
+        } else if (value > threshold.critical_high) {
+            status = 'critical';
+            message = 'Critical: Too High';
+            colorClass = 'bg-danger';
+        } else if (value < threshold.optimal_min || value > threshold.optimal_max) {
+            status = 'warning';
+            message = 'Suboptimal';
+            colorClass = 'bg-warning';
+        }
+        
+        card.classList.add(`metric-${status}`);
+        card.querySelector('.progress-bar').className = `progress-bar ${colorClass}`;
+        card.querySelector('.metric-status').innerHTML = `<small class="badge ${colorClass}">${message}</small>`;
+    });
+}
+
+function refreshData() {
+    fetch('/api/refresh')
+        .then(response => response.json())
+        .then(data => {
+            if (data.connected) {
+                location.reload();
+            } else {
+                alert('Unable to fetch new data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error refreshing data');
+        });
+}
+</script>
+{% endblock %}

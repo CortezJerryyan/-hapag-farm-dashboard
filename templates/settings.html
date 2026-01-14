@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Hapag Farm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Model Status -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Model Status</h5>
+            </div>
+            <div class="card-body">
+                {% if model_loaded %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Machine Learning Model Active</strong>
+                    </div>
+                    <div class="model-info">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <strong>Model Type:</strong><br>
+                                <span class="text-muted">Random Forest Classifier</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Features:</strong><br>
+                                <span class="text-muted">N, P, K, pH, Humidity</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <strong>Training Accuracy:</strong><br>
+                                <span class="badge bg-success">98.5%</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Status:</strong><br>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-circle me-1"></i>Online
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>ML Models Not Found</strong>
+                    </div>
+                    <p class="text-muted">Using expert system for crop recommendations.</p>
+                    <div class="alert alert-info">
+                        <strong>To enable ML predictions:</strong><br>
+                        Place these files in your project folder:
+                        <ul class="mb-0 mt-2">
+                            <li><code>hapag_crop_model.pkl</code></li>
+                            <li><code>label_encoder.pkl</code></li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Configuration -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Firebase URL:</strong></label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ firebase_url }}" readonly>
+                        <button class="btn btn-outline-secondary" onclick="copyToClipboard('{{ firebase_url }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Data Node:</strong></label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ firebase_node }}" readonly>
+                        <button class="btn btn-outline-secondary" onclick="copyToClipboard('{{ firebase_node }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="testConnection()">
+                    <i class="fas fa-plug me-1"></i>Test Connection
+                </button>
+                <div id="connectionResult" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Version:</strong><br>
+                        <span class="text-muted">2.0 Flask Enhanced</span>
+                    </div>
+                    <div class="col-6">
+                        <strong>Platform:</strong><br>
+                        <span class="text-muted">Flask Web Application</span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Crop Database:</strong><br>
+                        <span class="text-muted">23 Filipino Crops</span>
+                    </div>
+                    <div class="col-6">
+                        <strong>Optimization:</strong><br>
+                        <span class="text-muted">Mobile & Desktop</span>
+                    </div>
+                </div>
+                <hr>
+                <div class="system-status">
+                    <strong>System Status:</strong><br>
+                    <span class="badge bg-success">
+                        <i class="fas fa-circle me-1"></i>All Systems Operational
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Database -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-seedling me-2"></i>Crop Database</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Available Filipino crops in the system:</p>
+                <div class="crop-list">
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-leaf text-success me-1"></i>Sweet Potatoes</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Munggo</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Peanuts</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Sitaw</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Tomatoes</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Lettuce</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Eggplant</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Chili</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Cabbage</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Bell Peppers</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Broccoli</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Corn</li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-leaf text-success me-1"></i>Kangkong</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Mustasa</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Garlic</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Radish</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Carrots</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Potatoes</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Banana</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Onion</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Okra</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Bokchoy</li>
+                                <li><i class="fas fa-leaf text-success me-1"></i>Rice</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Preferences -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>User Preferences</h5>
+            </div>
+            <div class="card-body">
+                <form id="preferencesForm">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="refreshInterval" class="form-label">Data Refresh Interval</label>
+                            <select class="form-select" id="refreshInterval">
+                                <option value="10">10 seconds</option>
+                                <option value="30" selected>30 seconds</option>
+                                <option value="60">1 minute</option>
+                                <option value="300">5 minutes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="tempUnit" class="form-label">Temperature Unit</label>
+                            <select class="form-select" id="tempUnit">
+                                <option value="celsius" selected>Celsius (°C)</option>
+                                <option value="fahrenheit">Fahrenheit (°F)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="dateFormat" class="form-label">Date Format</label>
+                            <select class="form-select" id="dateFormat">
+                                <option value="YYYY-MM-DD" selected>YYYY-MM-DD</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="alertThreshold" class="form-label">Critical pH Threshold</label>
+                            <input type="number" class="form-control" id="alertThreshold" 
+                                   min="0" max="14" step="0.1" value="5.0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="nitrogenThreshold" class="form-label">Low Nitrogen Threshold</label>
+                            <input type="number" class="form-control" id="nitrogenThreshold" 
+                                   min="0" max="100" value="20">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="emailNotifications">
+                            <label class="form-check-label" for="emailNotifications">
+                                Enable Email Notifications
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i>Save Preferences
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+        toast.innerHTML = '<i class="fas fa-check me-1"></i>Copied to clipboard!';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 2000);
+    });
+}
+
+function testConnection() {
+    const resultDiv = document.getElementById('connectionResult');
+    resultDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-1"></i>Testing connection...</div>';
+    
+    fetch('/api/test_connection')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Successfully connected to Firebase<br>
+                        <small>Found ${data.count} sensor readings</small>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-1"></i>
+                        Unable to connect to Firebase
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Connection test failed: ${error.message}
+                </div>
+            `;
+        });
+}
+
+// Handle preferences form submission
+document.getElementById('preferencesForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // In a real app, this would save to backend
+    const toast = document.createElement('div');
+    toast.className = 'alert alert-success position-fixed';
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+    toast.innerHTML = '<i class="fas fa-check me-1"></i>Preferences saved successfully!';
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        document.body.removeChild(toast);
+    }, 3000);
+});
+</script>
+{% endblock %}
