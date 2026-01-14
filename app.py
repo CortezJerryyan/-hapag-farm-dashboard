@@ -169,13 +169,13 @@ def fetch_latest_data():
             last_row = df.iloc[-1]
             
             mapped_values = {
-                'N': float(last_row.get('N', last_row.get('Nitrogen', 0))),
-                'P': float(last_row.get('P', last_row.get('Phosphorus', 0))),
-                'K': float(last_row.get('K', last_row.get('Potassium', 0))),
+                'N': float(last_row.get('N (ppm)', last_row.get('N', 0))),
+                'P': float(last_row.get('P (ppm)', last_row.get('P', 0))),
+                'K': float(last_row.get('K (ppm)', last_row.get('K', 0))),
                 'ph': float(last_row.get('pH', last_row.get('ph', 0))),
                 'humidity': float(last_row.get('Humidity', last_row.get('humidity', 0))),
-                'soil_moisture': float(last_row.get('Soil Moisture', last_row.get('soil_moisture', 0))),
-                'temperature': float(last_row.get('Temperature', last_row.get('temperature', 0))),
+                'soil_moisture': float(last_row.get('EC', 0)),  # EC as soil conductivity
+                'temperature': float(last_row.get('Temp', last_row.get('Temperature', 0))),
                 'timestamp': str(last_row.get('Timestamp', last_row.get('timestamp', 'Unknown')))
             }
             return mapped_values, mapped_values['timestamp']
