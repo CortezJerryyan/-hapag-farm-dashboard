@@ -423,9 +423,8 @@ if (currentSensor && currentSensor.N !== undefined) {
     drawGauge('gaugeHumidity', currentSensor.humidity, 100, 'Humidity');
     drawGauge('gaugeTemperature', currentSensor.temperature, 50, 'Temperature');
     
-    // Calculate health score
-    const health = ((currentSensor.N/200 + currentSensor.P/100 + currentSensor.K/200) / 3) * 100;
-    drawGauge('gaugeHealth', health, 100, 'Health');
+    // Use backend calculated health score
+    drawGauge('gaugeHealth', currentSensor.health_score, 100, 'Health');
 }
 
 function exportData() {

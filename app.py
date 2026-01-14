@@ -677,18 +677,25 @@ def analytics():
     current_data, current_timestamp = fetch_latest_data()
     current_sensor = {
         'N': 0, 'P': 0, 'K': 0, 'ph': 0, 'humidity': 0,
-        'ec': 0, 'temperature': 0
+        'ec': 0, 'temperature': 0, 'health_score': 0
     }
     if current_data:
         try:
+            n = float(current_data.get('N', 0))
+            p = float(current_data.get('P', 0))
+            k = float(current_data.get('K', 0))
+            ph = float(current_data.get('ph', 0))
+            hum = float(current_data.get('humidity', 0))
+            
             current_sensor = {
-                'N': float(current_data.get('N', 0)),
-                'P': float(current_data.get('P', 0)),
-                'K': float(current_data.get('K', 0)),
-                'ph': float(current_data.get('ph', 0)),
-                'humidity': float(current_data.get('humidity', 0)),
+                'N': n,
+                'P': p,
+                'K': k,
+                'ph': ph,
+                'humidity': hum,
                 'ec': float(current_data.get('ec', 0)),
-                'temperature': float(current_data.get('temperature', 0))
+                'temperature': float(current_data.get('temperature', 0)),
+                'health_score': calculate_soil_health_score(n, p, k, ph, hum)
             }
         except:
             pass
